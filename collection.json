@@ -1,0 +1,48 @@
+{
+  "type": "Collection",
+  "id": "harvey-rainfall-collection",
+  "stac_version": "1.1.0",
+  "description": "GPM IMERG v07 precipitation data for Hurricane Harvey event analysis.",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./houston-rainfall-20170825/houston-rainfall-20170825.json",
+      "type": "application/geo+json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "stac_extensions": [
+    "https://stac-extensions.github.io/scientific/v1.0.0/schema.json"
+  ],
+  "sci:citation": "NASA GPM IMERG v07 Final Run Dataset.",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          -96.0,
+          28.3,
+          -94.0,
+          30.3
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2017-08-25T00:00:00Z",
+          "2017-09-05T00:00:00Z"
+        ]
+      ]
+    }
+  },
+  "license": "proprietary"
+}
