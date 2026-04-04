@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "event_1111011_20201113_nan",
+  "stac_version": "1.1.0",
+  "description": "Flood event event_1111011_20201113_nan",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_event_1111011_20201113_41/Precipitation_event_1111011_20201113_41.json",
+      "type": "application/geo+json"
+    }
+  ],
+  "title": "event_1111011_20201113_nan",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          121.14343053404322,
+          16.723350200051428,
+          122.25015496407846,
+          18.44980300936163
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2020-11-13T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}

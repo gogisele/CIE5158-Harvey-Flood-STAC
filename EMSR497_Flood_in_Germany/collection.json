@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "EMSR497_Flood_in_Germany",
+  "stac_version": "1.1.0",
+  "description": "Flood event EMSR497_Flood_in_Germany",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_event_497_20210203_21/Precipitation_event_497_20210203_21.json",
+      "type": "application/geo+json"
+    }
+  ],
+  "title": "EMSR497_Flood_in_Germany",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          3.602648531197134,
+          49.72818692925299,
+          8.029546251338138,
+          53.07787123
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2021-02-03T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}

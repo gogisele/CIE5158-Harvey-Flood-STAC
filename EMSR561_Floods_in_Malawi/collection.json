@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "EMSR561_Floods_in_Malawi",
+  "stac_version": "1.1.0",
+  "description": "Flood event EMSR561_Floods_in_Malawi",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_event_561_20220126_29/Precipitation_event_561_20220126_29.json",
+      "type": "application/geo+json"
+    }
+  ],
+  "title": "EMSR561_Floods_in_Malawi",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          32.65632077630434,
+          -17.69393449,
+          35.67466013094594,
+          -14.15351649
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2022-01-26T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}

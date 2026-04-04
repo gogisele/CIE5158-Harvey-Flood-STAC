@@ -1,0 +1,68 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation_event_275_20180322_7",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          17.557886638465487,
+          44.09383585677363
+        ],
+        [
+          17.557886638465487,
+          45.914729021763975
+        ],
+        [
+          14.036490724716964,
+          45.914729021763975
+        ],
+        [
+          14.036490724716964,
+          44.09383585677363
+        ],
+        [
+          17.557886638465487,
+          44.09383585677363
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    14.036490724716964,
+    44.09383585677363,
+    17.557886638465487,
+    45.914729021763975
+  ],
+  "properties": {
+    "datetime": "2018-03-22T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "EMSR275_Floods_in_Central_Croatia"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "EMSR275_Floods_in_Central_Croatia"
+    }
+  ],
+  "assets": {
+    "imerg_acc": {
+      "href": "../Precipitation/Rainfall_event_275_20180322_7.tif",
+      "type": "image/tiff; application=geotiff"
+    }
+  },
+  "collection": "EMSR275_Floods_in_Central_Croatia"
+}
