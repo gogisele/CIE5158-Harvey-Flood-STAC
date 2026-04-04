@@ -2,7 +2,7 @@
   "type": "Catalog",
   "id": "expanded-kurosiwo",
   "stac_version": "1.1.0",
-  "description": "KuroSiwo Dataset: Each EMSR is a Collection",
+  "description": "KuroSiwo Dataset",
   "links": [
     {
       "rel": "root",
@@ -11,259 +11,259 @@
     },
     {
       "rel": "child",
-      "href": "./118/collection.json",
+      "href": "./EMSR118_Flood_in_Spain/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR118_Flood_in_Spain"
     },
     {
       "rel": "child",
-      "href": "./130/collection.json",
+      "href": "./EMSR130_Flood_in_Myanmar/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR130_Flood_in_Myanmar"
     },
     {
       "rel": "child",
-      "href": "./147/collection.json",
+      "href": "./EMSR147_Flood_in_Cumbria/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR147_Flood_in_Cumbria"
     },
     {
       "rel": "child",
-      "href": "./174/collection.json",
+      "href": "./EMSR174_Flood_in_Skopje/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR174_Flood_in_Skopje"
     },
     {
       "rel": "child",
-      "href": "./205/collection.json",
+      "href": "./EMSR205_Floods_in_Sabaragamuwa_West_Sri_Lanka/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR205_Floods_in_Sabaragamuwa_West_Sri_Lanka"
     },
     {
       "rel": "child",
-      "href": "./267/collection.json",
+      "href": "./EMSR267_Flood_in_Silute_Lithuania/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR267_Flood_in_Silute_Lithuania"
     },
     {
       "rel": "child",
-      "href": "./273/collection.json",
+      "href": "./EMSR273_Flood_in_North_Western_Albania/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR273_Flood_in_North_Western_Albania"
     },
     {
       "rel": "child",
-      "href": "./275/collection.json",
+      "href": "./EMSR275_Floods_in_Central_Croatia/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR275_Floods_in_Central_Croatia"
     },
     {
       "rel": "child",
-      "href": "./277/collection.json",
+      "href": "./EMSR277_Flood_in_Thrace_Greece/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR277_Flood_in_Thrace_Greece"
     },
     {
       "rel": "child",
-      "href": "./279/collection.json",
+      "href": "./EMSR279_Flood_in_the_Ebro_river_basin_Spain/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR279_Flood_in_the_Ebro_river_basin_Spain"
     },
     {
       "rel": "child",
-      "href": "./321/collection.json",
+      "href": "./EMSR321_Flood_in_Honduras_and_Nicaragua/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR321_Flood_in_Honduras_and_Nicaragua"
     },
     {
       "rel": "child",
-      "href": "./324/collection.json",
+      "href": "./EMSR324_Floods_in_Aude_France/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR324_Floods_in_Aude_France"
     },
     {
       "rel": "child",
-      "href": "./411/collection.json",
+      "href": "./EMSR411_Flood_in_South_East_France/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR411_Flood_in_South_East_France"
     },
     {
       "rel": "child",
-      "href": "./417/collection.json",
+      "href": "./EMSR417_Flood_in_Portugal/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR417_Flood_in_Portugal"
     },
     {
       "rel": "child",
-      "href": "./421/collection.json",
+      "href": "./EMSR421_Flood_in_Occitanie_France/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR421_Flood_in_Occitanie_France"
     },
     {
       "rel": "child",
-      "href": "./427/collection.json",
+      "href": "./EMSR427_Flood_in_Vastra_Gotaland_Sweden/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR427_Flood_in_Vastra_Gotaland_Sweden"
     },
     {
       "rel": "child",
-      "href": "./437/collection.json",
+      "href": "./EMSR437_Flood_in_South_West_of_France/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR437_Flood_in_South_West_of_France"
     },
     {
       "rel": "child",
-      "href": "./445/collection.json",
+      "href": "./EMSR445_Flood_in_Romania/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR445_Flood_in_Romania"
     },
     {
       "rel": "child",
-      "href": "./470/collection.json",
+      "href": "./EMSR470_Flood_in_Togo/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR470_Flood_in_Togo"
     },
     {
       "rel": "child",
-      "href": "./492/collection.json",
+      "href": "./EMSR492_Flood_in_Landes_France/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR492_Flood_in_Landes_France"
     },
     {
       "rel": "child",
-      "href": "./496/collection.json",
+      "href": "./EMSR496_Flood_in_Lazio_Region_Italy/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR496_Flood_in_Lazio_Region_Italy"
     },
     {
       "rel": "child",
-      "href": "./497/collection.json",
+      "href": "./EMSR497_Flood_in_Germany/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR497_Flood_in_Germany"
     },
     {
       "rel": "child",
-      "href": "./498/collection.json",
+      "href": "./EMSR498_Flood_in_Correze_department_France/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR498_Flood_in_Correze_department_France"
     },
     {
       "rel": "child",
-      "href": "./502/collection.json",
+      "href": "./EMSR502_Flood_in_Southern_Ireland/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR502_Flood_in_Southern_Ireland"
     },
     {
       "rel": "child",
-      "href": "./518/collection.json",
+      "href": "./EMSR518_Flood_in_Belgium/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR518_Flood_in_Belgium"
     },
     {
       "rel": "child",
-      "href": "./520/collection.json",
+      "href": "./EMSR520_Flood_in_Netherlands/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR520_Flood_in_Netherlands"
     },
     {
       "rel": "child",
-      "href": "./554/collection.json",
+      "href": "./EMSR554_Floods_in_Queensland_Australia/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR554_Floods_in_Queensland_Australia"
     },
     {
       "rel": "child",
-      "href": "./555/collection.json",
+      "href": "./EMSR555_Flood_in_the_Ebro_river_basin_Spain/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR555_Flood_in_the_Ebro_river_basin_Spain"
     },
     {
       "rel": "child",
-      "href": "./559/collection.json",
+      "href": "./EMSR559_Flood_in_Madagascar/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR559_Flood_in_Madagascar"
     },
     {
       "rel": "child",
-      "href": "./561/collection.json",
+      "href": "./EMSR561_Floods_in_Malawi/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR561_Floods_in_Malawi"
     },
     {
       "rel": "child",
-      "href": "./562/collection.json",
+      "href": "./EMSR562_Floods_in_Australia/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR562_Floods_in_Australia"
     },
     {
       "rel": "child",
-      "href": "./567/collection.json",
+      "href": "./EMSR567_Floods_in_Queensland_Australia/collection.json",
       "type": "application/json",
       "title": "Collection for EMSR567_Floods_in_Queensland_Australia"
     },
     {
       "rel": "child",
-      "href": "./1111002/collection.json",
+      "href": "./event_1111002_20200915_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111002_20200915_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111003/collection.json",
+      "href": "./event_1111003_20191127_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111003_20191127_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111004/collection.json",
+      "href": "./event_1111004_20170829_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111004_20170829_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111005/collection.json",
+      "href": "./event_1111005_20200126_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111005_20200126_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111006/collection.json",
+      "href": "./event_1111006_20200131_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111006_20200131_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111007/collection.json",
+      "href": "./event_1111007_20190918_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111007_20190918_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111008/collection.json",
+      "href": "./event_1111008_20200816_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111008_20200816_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111009/collection.json",
+      "href": "./event_1111009_20220911_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111009_20220911_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111010/collection.json",
+      "href": "./event_1111010_20170311_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111010_20170311_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111011/collection.json",
+      "href": "./event_1111011_20201113_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111011_20201113_NoEvent"
     },
     {
       "rel": "child",
-      "href": "./1111013/collection.json",
+      "href": "./event_1111013_20170504_NoEvent/collection.json",
       "type": "application/json",
       "title": "Collection for event_1111013_20170504_NoEvent"
     }

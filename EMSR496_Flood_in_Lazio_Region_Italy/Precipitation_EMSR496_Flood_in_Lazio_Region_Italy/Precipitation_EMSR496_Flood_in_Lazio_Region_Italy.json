@@ -1,0 +1,67 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation_EMSR496_Flood_in_Lazio_Region_Italy",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          15.15695937859924,
+          41.57558745632485
+        ],
+        [
+          15.15695937859924,
+          43.45897165118734
+        ],
+        [
+          12.07825323686482,
+          43.45897165118734
+        ],
+        [
+          12.07825323686482,
+          41.57558745632485
+        ],
+        [
+          15.15695937859924,
+          41.57558745632485
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    12.07825323686482,
+    41.57558745632485,
+    15.15695937859924,
+    43.45897165118734
+  ],
+  "properties": {
+    "datetime": "2021-01-27T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR496_Flood_in_Lazio_Region_Italy"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR496_Flood_in_Lazio_Region_Italy"
+    }
+  ],
+  "assets": {
+    "imerg_acc": {
+      "href": "./Rainfall_EMSR496_Flood_in_Lazio_Region_Italy.tif"
+    }
+  },
+  "collection": "EMSR496_Flood_in_Lazio_Region_Italy"
+}

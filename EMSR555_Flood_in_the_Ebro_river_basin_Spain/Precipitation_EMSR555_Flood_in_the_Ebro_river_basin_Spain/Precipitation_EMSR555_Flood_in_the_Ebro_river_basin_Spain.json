@@ -1,0 +1,67 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation_EMSR555_Flood_in_the_Ebro_river_basin_Spain",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -0.028701173,
+          39.56898762898998
+        ],
+        [
+          -0.028701173,
+          44.45409199751425
+        ],
+        [
+          -3.932420072,
+          44.45409199751425
+        ],
+        [
+          -3.932420072,
+          39.56898762898998
+        ],
+        [
+          -0.028701173,
+          39.56898762898998
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -3.932420072,
+    39.56898762898998,
+    -0.028701173,
+    44.45409199751425
+  ],
+  "properties": {
+    "datetime": "2021-12-10T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR555_Flood_in_the_Ebro_river_basin_Spain"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR555_Flood_in_the_Ebro_river_basin_Spain"
+    }
+  ],
+  "assets": {
+    "imerg_acc": {
+      "href": "./Rainfall_EMSR555_Flood_in_the_Ebro_river_basin_Spain.tif"
+    }
+  },
+  "collection": "EMSR555_Flood_in_the_Ebro_river_basin_Spain"
+}

@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "EMSR498_Flood_in_Correze_department_France",
+  "stac_version": "1.1.0",
+  "description": "Flood event EMSR498_Flood_in_Correze_department_France",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_EMSR498_Flood_in_Correze_department_France/Precipitation_EMSR498_Flood_in_Correze_department_France.json",
+      "type": "application/geo+json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "title": "Collection for EMSR498_Flood_in_Correze_department_France",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          0.148266938,
+          43.52616141,
+          3.629418326663896,
+          45.435376425701705
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2021-02-02T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}

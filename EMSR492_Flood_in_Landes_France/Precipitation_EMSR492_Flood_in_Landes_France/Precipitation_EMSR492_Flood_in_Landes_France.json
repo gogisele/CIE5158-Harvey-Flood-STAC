@@ -1,0 +1,67 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation_EMSR492_Flood_in_Landes_France",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          1.2346894422580763,
+          42.25307792310338
+        ],
+        [
+          1.2346894422580763,
+          44.072864079368806
+        ],
+        [
+          -2.18609516,
+          44.072864079368806
+        ],
+        [
+          -2.18609516,
+          42.25307792310338
+        ],
+        [
+          1.2346894422580763,
+          42.25307792310338
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -2.18609516,
+    42.25307792310338,
+    1.2346894422580763,
+    44.072864079368806
+  ],
+  "properties": {
+    "datetime": "2021-01-02T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR492_Flood_in_Landes_France"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR492_Flood_in_Landes_France"
+    }
+  ],
+  "assets": {
+    "imerg_acc": {
+      "href": "./Rainfall_EMSR492_Flood_in_Landes_France.tif"
+    }
+  },
+  "collection": "EMSR492_Flood_in_Landes_France"
+}
