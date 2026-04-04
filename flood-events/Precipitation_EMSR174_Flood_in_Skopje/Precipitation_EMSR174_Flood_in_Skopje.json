@@ -1,0 +1,69 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation_EMSR174_Flood_in_Skopje",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          22.357315706930855,
+          40.79121821
+        ],
+        [
+          22.357315706930855,
+          42.697724319801814
+        ],
+        [
+          18.99689789209655,
+          42.697724319801814
+        ],
+        [
+          18.99689789209655,
+          40.79121821
+        ],
+        [
+          22.357315706930855,
+          40.79121821
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    18.99689789209655,
+    40.79121821,
+    22.357315706930855,
+    42.697724319801814
+  ],
+  "properties": {
+    "datetime": "2016-08-07T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Flood Events Collection"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Flood Events Collection"
+    }
+  ],
+  "assets": {
+    "imerg_acc": {
+      "href": "./EMSR174_Flood_in_Skopje/Precipitation/Rainfall_EMSR174_Flood_in_Skopje.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "IMERG Rainfall"
+    }
+  },
+  "collection": "flood-events"
+}
