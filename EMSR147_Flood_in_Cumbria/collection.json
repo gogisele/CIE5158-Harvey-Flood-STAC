@@ -16,12 +16,12 @@
     },
     {
       "rel": "item",
-      "href": "./Precipitation_event_147_20151210_2/Precipitation_event_147_20151210_2.json",
+      "href": "./Precipitation/Precipitation.json",
       "type": "application/geo+json"
     },
     {
       "rel": "item",
-      "href": "./LULC_event_147_20151210_2/LULC_event_147_20151210_2.json",
+      "href": "./LULC/LULC.json",
       "type": "application/geo+json"
     }
   ],
@@ -41,7 +41,7 @@
       "interval": [
         [
           "2015-12-10T00:00:00Z",
-          null
+          "2015-12-10T00:00:00Z"
         ]
       ]
     }

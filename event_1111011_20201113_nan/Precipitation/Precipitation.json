@@ -1,0 +1,71 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          122.25015496407846,
+          16.723350200051428
+        ],
+        [
+          122.25015496407846,
+          18.44980300936163
+        ],
+        [
+          121.14343053404322,
+          18.44980300936163
+        ],
+        [
+          121.14343053404322,
+          16.723350200051428
+        ],
+        [
+          122.25015496407846,
+          16.723350200051428
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    121.14343053404322,
+    16.723350200051428,
+    122.25015496407846,
+    18.44980300936163
+  ],
+  "properties": {
+    "start_datetime": "2020-11-13T00:00:00Z",
+    "end_datetime": "2020-11-13T00:00:00Z",
+    "category": "Precipitation",
+    "datetime": "2020-11-13T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "event_1111011_20201113_nan"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "event_1111011_20201113_nan"
+    }
+  ],
+  "assets": {
+    "imerg_acc_event_1111011_20201113_41": {
+      "href": "./Rainfall_event_1111011_20201113_41.tif",
+      "type": "image/tiff; application=geotiff"
+    }
+  },
+  "collection": "event_1111011_20201113_nan"
+}

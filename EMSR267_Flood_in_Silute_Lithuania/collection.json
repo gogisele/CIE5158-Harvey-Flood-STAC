@@ -16,7 +16,7 @@
     },
     {
       "rel": "item",
-      "href": "./Precipitation_event_267_20180202_5/Precipitation_event_267_20180202_5.json",
+      "href": "./Precipitation/Precipitation.json",
       "type": "application/geo+json"
     }
   ],
@@ -36,7 +36,7 @@
       "interval": [
         [
           "2018-02-02T00:00:00Z",
-          null
+          "2018-02-02T00:00:00Z"
         ]
       ]
     }

@@ -1,0 +1,71 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          153.3752524228369,
+          -33.81146956
+        ],
+        [
+          153.3752524228369,
+          -29.11079243
+        ],
+        [
+          149.1696995887029,
+          -29.11079243
+        ],
+        [
+          149.1696995887029,
+          -33.81146956
+        ],
+        [
+          153.3752524228369,
+          -33.81146956
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    149.1696995887029,
+    -33.81146956,
+    153.3752524228369,
+    -29.11079243
+  ],
+  "properties": {
+    "start_datetime": "2022-03-07T00:00:00Z",
+    "end_datetime": "2022-03-07T00:00:00Z",
+    "category": "Precipitation",
+    "datetime": "2022-03-07T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "EMSR567_Floods_in_Queensland_Australia"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "EMSR567_Floods_in_Queensland_Australia"
+    }
+  ],
+  "assets": {
+    "imerg_acc_event_567_20220307_31": {
+      "href": "./Rainfall_event_567_20220307_31.tif",
+      "type": "image/tiff; application=geotiff"
+    }
+  },
+  "collection": "EMSR567_Floods_in_Queensland_Australia"
+}

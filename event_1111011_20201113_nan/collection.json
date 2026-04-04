@@ -16,7 +16,7 @@
     },
     {
       "rel": "item",
-      "href": "./Precipitation_event_1111011_20201113_41/Precipitation_event_1111011_20201113_41.json",
+      "href": "./Precipitation/Precipitation.json",
       "type": "application/geo+json"
     }
   ],
@@ -36,7 +36,7 @@
       "interval": [
         [
           "2020-11-13T00:00:00Z",
-          null
+          "2020-11-13T00:00:00Z"
         ]
       ]
     }

@@ -16,7 +16,7 @@
     },
     {
       "rel": "item",
-      "href": "./Precipitation_event_496_20210127_20/Precipitation_event_496_20210127_20.json",
+      "href": "./Precipitation/Precipitation.json",
       "type": "application/geo+json"
     }
   ],
@@ -36,7 +36,7 @@
       "interval": [
         [
           "2021-01-27T00:00:00Z",
-          null
+          "2021-01-27T00:00:00Z"
         ]
       ]
     }

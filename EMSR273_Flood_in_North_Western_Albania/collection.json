@@ -16,7 +16,7 @@
     },
     {
       "rel": "item",
-      "href": "./Precipitation_event_273_20180311_6/Precipitation_event_273_20180311_6.json",
+      "href": "./Precipitation/Precipitation.json",
       "type": "application/geo+json"
     }
   ],
@@ -36,7 +36,7 @@
       "interval": [
         [
           "2018-03-11T00:00:00Z",
-          null
+          "2018-03-11T00:00:00Z"
         ]
       ]
     }

@@ -16,7 +16,7 @@
     },
     {
       "rel": "item",
-      "href": "./Precipitation_event_118_20150203_0/Precipitation_event_118_20150203_0.json",
+      "href": "./Precipitation/Precipitation.json",
       "type": "application/geo+json"
     }
   ],
@@ -36,7 +36,7 @@
       "interval": [
         [
           "2015-02-03T00:00:00Z",
-          null
+          "2015-02-03T00:00:00Z"
         ]
       ]
     }

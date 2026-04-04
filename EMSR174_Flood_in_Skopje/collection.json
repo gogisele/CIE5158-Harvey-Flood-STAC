@@ -16,22 +16,22 @@
     },
     {
       "rel": "item",
-      "href": "./S1_event_174_20160807_3/S1_event_174_20160807_3.json",
+      "href": "./Precipitation/Precipitation.json",
       "type": "application/geo+json"
     },
     {
       "rel": "item",
-      "href": "./S2_event_174_20160807_3/S2_event_174_20160807_3.json",
+      "href": "./LULC/LULC.json",
       "type": "application/geo+json"
     },
     {
       "rel": "item",
-      "href": "./Precipitation_event_174_20160807_3/Precipitation_event_174_20160807_3.json",
+      "href": "./S2/S2.json",
       "type": "application/geo+json"
     },
     {
       "rel": "item",
-      "href": "./LULC_event_174_20160807_3/LULC_event_174_20160807_3.json",
+      "href": "./S1/S1.json",
       "type": "application/geo+json"
     }
   ],
@@ -51,7 +51,7 @@
       "interval": [
         [
           "2016-08-07T00:00:00Z",
-          null
+          "2016-08-07T00:00:00Z"
         ]
       ]
     }

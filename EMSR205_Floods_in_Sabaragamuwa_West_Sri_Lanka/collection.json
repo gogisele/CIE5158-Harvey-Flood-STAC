@@ -16,12 +16,12 @@
     },
     {
       "rel": "item",
-      "href": "./Precipitation_event_205_20170530_4/Precipitation_event_205_20170530_4.json",
+      "href": "./Precipitation/Precipitation.json",
       "type": "application/geo+json"
     },
     {
       "rel": "item",
-      "href": "./LULC_event_205_20170530_4/LULC_event_205_20170530_4.json",
+      "href": "./LULC/LULC.json",
       "type": "application/geo+json"
     }
   ],
@@ -41,7 +41,7 @@
       "interval": [
         [
           "2017-05-30T00:00:00Z",
-          null
+          "2017-05-30T00:00:00Z"
         ]
       ]
     }
