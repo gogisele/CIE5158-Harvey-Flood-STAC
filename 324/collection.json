@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "324",
+  "stac_version": "1.1.0",
+  "description": "All assets for flood event EMSR324_Floods_in_Aude_France",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_324/Precipitation_324.json",
+      "type": "application/geo+json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "title": "Collection for EMSR324_Floods_in_Aude_France",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          -0.182133424,
+          42.02459921705812,
+          3.2727871588684465,
+          43.938080546384604
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2018-10-16T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}

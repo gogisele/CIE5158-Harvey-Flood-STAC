@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "554",
+  "stac_version": "1.1.0",
+  "description": "All assets for flood event EMSR554_Floods_in_Queensland_Australia",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_554/Precipitation_554.json",
+      "type": "application/geo+json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "title": "Collection for EMSR554_Floods_in_Queensland_Australia",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          148.79968352317408,
+          -28.76228584,
+          151.67716704126573,
+          -26.92980864
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2021-11-30T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}

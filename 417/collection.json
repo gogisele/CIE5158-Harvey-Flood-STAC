@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "417",
+  "stac_version": "1.1.0",
+  "description": "All assets for flood event EMSR417_Flood_in_Portugal",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_417/Precipitation_417.json",
+      "type": "application/geo+json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "title": "Collection for EMSR417_Flood_in_Portugal",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          -9.284852029,
+          39.236499940912914,
+          -7.795804614,
+          40.86904515077094
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2019-12-23T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}
