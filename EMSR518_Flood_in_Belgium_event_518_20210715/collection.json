@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "EMSR518_Flood_in_Belgium_event_518_20210715",
+  "stac_version": "1.1.0",
+  "description": "Flood event EMSR518_Flood_in_Belgium_event_518_20210715",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_EMSR518_Flood_in_Belgium_event_518_20210715/Precipitation_EMSR518_Flood_in_Belgium_event_518_20210715.json",
+      "type": "application/geo+json"
+    }
+  ],
+  "title": "Collection for EMSR518_Flood_in_Belgium_event_518_20210715",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          3.4812861363125873,
+          49.221533887511775,
+          7.847817069360757,
+          52.570233210630455
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2021-07-15T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}

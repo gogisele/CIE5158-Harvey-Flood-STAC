@@ -1,0 +1,67 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation_EMSR273_Flood_in_North_Western_Albania_event_273_20180311",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          20.457109386432833,
+          40.14602513816288
+        ],
+        [
+          20.457109386432833,
+          43.47442343930681
+        ],
+        [
+          16.77473537377009,
+          43.47442343930681
+        ],
+        [
+          16.77473537377009,
+          40.14602513816288
+        ],
+        [
+          20.457109386432833,
+          40.14602513816288
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    16.77473537377009,
+    40.14602513816288,
+    20.457109386432833,
+    43.47442343930681
+  ],
+  "properties": {
+    "datetime": "2018-03-11T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR273_Flood_in_North_Western_Albania_event_273_20180311"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR273_Flood_in_North_Western_Albania_event_273_20180311"
+    }
+  ],
+  "assets": {
+    "imerg_acc": {
+      "href": "../Precipitation/Rainfall_EMSR273_Flood_in_North_Western_Albania_event_273_20180311.tif"
+    }
+  },
+  "collection": "EMSR273_Flood_in_North_Western_Albania_event_273_20180311"
+}

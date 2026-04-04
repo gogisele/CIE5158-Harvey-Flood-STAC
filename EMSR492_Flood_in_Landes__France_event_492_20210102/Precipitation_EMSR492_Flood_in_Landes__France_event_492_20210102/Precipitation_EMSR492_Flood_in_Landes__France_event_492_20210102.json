@@ -1,0 +1,67 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation_EMSR492_Flood_in_Landes__France_event_492_20210102",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          1.2346894422580763,
+          42.25307792310338
+        ],
+        [
+          1.2346894422580763,
+          44.072864079368806
+        ],
+        [
+          -2.18609516,
+          44.072864079368806
+        ],
+        [
+          -2.18609516,
+          42.25307792310338
+        ],
+        [
+          1.2346894422580763,
+          42.25307792310338
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -2.18609516,
+    42.25307792310338,
+    1.2346894422580763,
+    44.072864079368806
+  ],
+  "properties": {
+    "datetime": "2021-01-02T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR492_Flood_in_Landes__France_event_492_20210102"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Collection for EMSR492_Flood_in_Landes__France_event_492_20210102"
+    }
+  ],
+  "assets": {
+    "imerg_acc": {
+      "href": "../Precipitation/Rainfall_EMSR492_Flood_in_Landes__France_event_492_20210102.tif"
+    }
+  },
+  "collection": "EMSR492_Flood_in_Landes__France_event_492_20210102"
+}

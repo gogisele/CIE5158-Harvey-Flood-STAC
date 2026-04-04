@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "EMSR421_Flood_in_Occitanie__France_event_421_20200123",
+  "stac_version": "1.1.0",
+  "description": "Flood event EMSR421_Flood_in_Occitanie__France_event_421_20200123",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_EMSR421_Flood_in_Occitanie__France_event_421_20200123/Precipitation_EMSR421_Flood_in_Occitanie__France_event_421_20200123.json",
+      "type": "application/geo+json"
+    }
+  ],
+  "title": "Collection for EMSR421_Flood_in_Occitanie__France_event_421_20200123",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          2.347522416225339,
+          41.63322039,
+          5.466473082688318,
+          43.45649378187195
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2020-01-23T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}
