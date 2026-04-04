@@ -1,0 +1,50 @@
+{
+  "type": "Collection",
+  "id": "EMSR174_Flood_in_Skopje",
+  "stac_version": "1.1.0",
+  "description": "All items related to flood event Flood in Skopje",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./S1_EMSR174_Flood_in_Skopje/S1_EMSR174_Flood_in_Skopje.json",
+      "type": "application/geo+json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_EMSR174_Flood_in_Skopje/Precipitation_EMSR174_Flood_in_Skopje.json",
+      "type": "application/geo+json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "title": "Collection for EMSR174_Flood_in_Skopje",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          18.99689789209655,
+          40.79121821,
+          22.357315706930855,
+          42.697724319801814
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2016-08-07T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}

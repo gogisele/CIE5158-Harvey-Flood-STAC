@@ -1,0 +1,45 @@
+{
+  "type": "Collection",
+  "id": "event_1111008_20200816_NoEvent",
+  "stac_version": "1.1.0",
+  "description": "All items related to flood event nan",
+  "links": [
+    {
+      "rel": "root",
+      "href": "../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "item",
+      "href": "./Precipitation_event_1111008_20200816_NoEvent/Precipitation_event_1111008_20200816_NoEvent.json",
+      "type": "application/geo+json"
+    },
+    {
+      "rel": "parent",
+      "href": "../catalog.json",
+      "type": "application/json"
+    }
+  ],
+  "title": "Collection for event_1111008_20200816_NoEvent",
+  "extent": {
+    "spatial": {
+      "bbox": [
+        [
+          -83.64532512,
+          13.945241533992842,
+          -83.40304949,
+          14.21909677651746
+        ]
+      ]
+    },
+    "temporal": {
+      "interval": [
+        [
+          "2020-08-16T00:00:00Z",
+          null
+        ]
+      ]
+    }
+  },
+  "license": "other"
+}
