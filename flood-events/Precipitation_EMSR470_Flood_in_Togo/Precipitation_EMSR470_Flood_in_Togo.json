@@ -1,0 +1,69 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation_EMSR470_Flood_in_Togo",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          1.9946641726231913,
+          8.263861043400002
+        ],
+        [
+          1.9946641726231913,
+          11.731223138009367
+        ],
+        [
+          -0.862697083,
+          11.731223138009367
+        ],
+        [
+          -0.862697083,
+          8.263861043400002
+        ],
+        [
+          1.9946641726231913,
+          8.263861043400002
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -0.862697083,
+    8.263861043400002,
+    1.9946641726231913,
+    11.731223138009367
+  ],
+  "properties": {
+    "datetime": "2020-10-14T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Flood Events Collection"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Flood Events Collection"
+    }
+  ],
+  "assets": {
+    "imerg_acc": {
+      "href": "./EMSR470_Flood_in_Togo/Precipitation/Rainfall_EMSR470_Flood_in_Togo.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "IMERG Rainfall"
+    }
+  },
+  "collection": "flood-events"
+}

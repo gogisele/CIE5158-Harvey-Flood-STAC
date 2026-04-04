@@ -1,0 +1,69 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "Precipitation_event_1111002_20200915_NoEvent",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          14.918007513023449,
+          12.176264184668351
+        ],
+        [
+          14.918007513023449,
+          12.314354238056278
+        ],
+        [
+          14.79691461272414,
+          12.314354238056278
+        ],
+        [
+          14.79691461272414,
+          12.176264184668351
+        ],
+        [
+          14.918007513023449,
+          12.176264184668351
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    14.79691461272414,
+    12.176264184668351,
+    14.918007513023449,
+    12.314354238056278
+  ],
+  "properties": {
+    "datetime": "2020-09-15T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Flood Events Collection"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "Flood Events Collection"
+    }
+  ],
+  "assets": {
+    "imerg_acc": {
+      "href": "./event_1111002_20200915_NoEvent/Precipitation/Rainfall_event_1111002_20200915_NoEvent.tif",
+      "type": "image/tiff; application=geotiff",
+      "title": "IMERG Rainfall"
+    }
+  },
+  "collection": "flood-events"
+}
