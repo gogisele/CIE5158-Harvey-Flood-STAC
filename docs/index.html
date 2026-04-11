@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skopje Flood Analysis - Gisele</title>
+    <title>Skopje WebGIS Debugger - Gisele</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; }
-        #map { height: 100vh; width: 100%; background: #ffffff; }
-        .legend {
-            background: white; padding: 10px; border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 12px;
-        }
-        .legend h4 { margin: 5px 0; font-size: 13px; border-bottom: 1px solid #eee; }
-        .legend i { width: 14px; height: 14px; float: left; margin-right: 8px; opacity: 0.9; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 3px; }
+        #map { height: 100vh; width: 100%; }
+        .legend { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 12px; }
+        .legend i { width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -27,75 +22,53 @@
         var map = L.map('map').setView([42.0, 21.43], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // 1. 修正後的索引 (0-8)
         const dwColors = {
-            0: "#419BDF", // Water
-            1: "#397D49", // Trees
-            2: "#88B053", // Grass
-            3: "#7A87C6", // Flooded Veg
-            4: "#E49635", // Crops
-            5: "#E5D0A3", // Shrub
-            6: "#C4281B", // Built Area
-            7: "#A59B8F"  // Bare
+            0: "#419BDF", 1: "#397D49", 2: "#88B053", 3: "#7A87C6", 
+            4: "#E49635", 5: "#E5D0A3", 6: "#C4281B", 7: "#A59B8F"
         };
 
         function getRainColor(v) {
-            if (v > 50) return "#08306b";
-            if (v > 25) return "#2171b5";
-            if (v > 10) return "#6baed6";
-            return "#deebf7";
+            return v > 50 ? "#08306b" : v > 20 ? "#2171b5" : v > 5 ? "#6baed6" : null;
         }
 
         async function loadLayer(url, colorFn, opacity, name) {
             const res = await fetch(url);
             const ab = await res.arrayBuffer();
             const g = await parseGeoraster(ab);
-            return new GeoRasterLayer({
+            const layer = new GeoRasterLayer({
                 georaster: g,
                 opacity: opacity,
                 pixelValuesToColorFn: v => {
-                    if (v === null || v < 0) return null;
-                    const color = colorFn(v);
-                    // 偵錯模式：如果是有數值但沒顏色，塗成亮粉色
-                    return color ? color : "#FF00FF"; 
+                    if (v === null || v === 255 || v === 0) return null; // 把背景值直接拿掉
+                    return colorFn(v) || "#FF00FF"; // 找不到顏色就變粉色
                 },
                 resolution: 128
             });
+
+            // 💡 點擊偵測功能：點了粉色會告訴妳數值！
+            map.on('click', function(e) {
+                const val = geoblaze.identify(g, [e.latlng.lng, e.latlng.lat]);
+                if (val) alert(`圖層: ${name}\n點擊位置數值為: ${val}`);
+            });
+
+            return layer;
         }
 
-        Promise.all([
-            loadLayer("data/Precip_174_COG.tif", getRainColor, 0.4, "Rain"),
-            loadLayer("data/LULC_174_COG.tif", v => dwColors[Math.floor(v)], 0.8, "LULC")
-        ]).then(layers => {
-            const [rain, lulc] = layers;
+        // 引入 geoblaze 插件來幫忙偵測數值
+        const script = document.createElement('script');
+        script.src = "https://unpkg.com/geoblaze";
+        document.head.appendChild(script);
 
-            // 順序很重要：先加雨量，再加 LULC (這樣 LULC 就會在上面)
-            if (rain) rain.addTo(map);
-            if (lulc) lulc.addTo(map);
-
-            L.control.layers(null, {
-                "累積降雨 (Rainfall)": rain,
-                "土地利用 (LULC)": lulc
-            }, { collapsed: false }).addTo(map);
-
-            var legend = L.control({position: 'bottomright'});
-            legend.onAdd = function () {
-                var div = L.DomUtil.create('div', 'legend');
-                div.innerHTML = '<h4>LULC (Top)</h4>' +
-                    '<div class="legend-item"><i style="background:#419BDF"></i> 水域 (Water)</div>' +
-                    '<div class="legend-item"><i style="background:#C4281B"></i> 建築 (Built)</div>' +
-                    '<div class="legend-item"><i style="background:#397D49"></i> 森林 (Trees)</div>' +
-                    '<div class="legend-item"><i style="background:#E49635"></i> 農地 (Crops)</div>' +
-                    '<div class="legend-item"><i style="background:#FF00FF"></i> 數值異常 (Debug)</div>' +
-                    '<h4>Rainfall</h4>' +
-                    '<div class="legend-item"><i style="background:#08306b"></i> > 50mm</div>' +
-                    '<div class="legend-item"><i style="background:#deebf7"></i> < 10mm</div>';
-                return div;
-            };
-            legend.addTo(map);
-            
-            if (lulc) map.fitBounds(lulc.getBounds());
-        });
+        script.onload = () => {
+            Promise.all([
+                loadLayer("data/Precip_174_COG.tif", getRainColor, 0.4, "Rainfall"),
+                loadLayer("data/LULC_174_COG.tif", v => dwColors[Math.round(v)], 0.8, "LULC")
+            ]).then(layers => {
+                layers.forEach(l => l && l.addTo(map));
+                L.control.layers(null, { "降雨": layers[0], "土地利用": layers[1] }, {collapsed: false}).addTo(map);
+                if (layers[1]) map.fitBounds(layers[1].getBounds());
+            });
+        };
     </script>
 </body>
 </html>
