@@ -1,130 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Skopje Flood Time-Series Analysis</title>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        body { margin: 0; padding: 0; }
-        #map { height: 100vh; width: 100%; background: #111; }
+<script>
+    // 妳的時序圖層現在變成了簡單的 TileLayer
+    const timeline = [
+        { d: "2015-07-20", s2: "tiles/s2_20150814/{z}/{x}/{y}.png", f: "tiles/flood_20150720/{z}/{x}/{y}.png" },
+        { d: "2015-08-13", s2: "tiles/s2_20150814/{z}/{x}/{y}.png", f: "tiles/flood_20150813/{z}/{x}/{y}.png" },
+        { d: "2016-08-07", s2: "tiles/s2_20160805/{z}/{x}/{y}.png", f: "tiles/flood_20160807/{z}/{x}/{y}.png" }
+    ];
+
+    let s2Layer, floodLayer;
+
+    function update(i) {
+        const item = timeline[i];
+        document.getElementById("date-label").innerText = item.d;
         
-        /* 圖例樣式 */
-        .legend {
-            background: rgba(255, 255, 255, 0.9); padding: 12px;
-            line-height: 20px; color: #333; border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3); font-size: 13px; font-family: sans-serif;
-        }
-        .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.8; border-radius: 2px; }
+        if(s2Layer) map.removeLayer(s2Layer);
+        if(floodLayer) map.removeLayer(floodLayer);
 
-        /* 拉桿樣式 */
-        .slider-box {
-            position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; background: white; padding: 15px 25px; border-radius: 15px;
-            width: 320px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-        .date-label { font-size: 16px; font-weight: bold; color: #007bff; margin-bottom: 10px; }
-        input[type=range] { width: 100%; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <div id="map"></div>
-    <div class="slider-box">
-        <div id="date-label" class="date-label">正在初始化地圖...</div>
-        <input type="range" id="time-slider" min="0" max="2" step="1" value="0">
-    </div>
-
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/georaster"></script>
-    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
-
-    <script>
-        // 降低快取影響
-        const map = L.map('map').setView([42.0, 21.43], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-        const timeline = [
-            { d: "2015-07-20", s2: "data/S2_20150814_COG.tif", f: "data/Flood_20150720_COG.tif" },
-            { d: "2015-08-13", s2: "data/S2_20150814_COG.tif", f: "data/Flood_20150813_COG.tif" },
-            { d: "2016-08-07", s2: "data/S2_20160805_COG.tif", f: "data/Flood_20160807_COG.tif" }
-        ];
-
-        let timeGroup = L.layerGroup().addTo(map);
-
-        async function loadLayer(url, type) {
-            try {
-                const res = await fetch(url);
-                const g = await parseGeoraster(await res.arrayBuffer());
-                return new GeoRasterLayer({
-                    georaster: g,
-                    opacity: type === 'f' ? 0.9 : 0.7,
-                    pixelValuesToColorFn: v => {
-                        // 修正 1：針對淹水層，只有數值為 1 (經由 burn 指令產生) 才顯示顏色
-                        if (type === 'f') {
-                            const val = Array.isArray(v) ? v[0] : v;
-                            return (val >= 1 && val < 2) ? "#00FFFF" : null; 
-                        }
-                        
-                        // 針對降雨層
-                        if (type === 'rain') {
-                            const val = Array.isArray(v) ? v[0] : v;
-                            return val > 15 ? "#08306b" : null;
-                        }
-
-                        // 針對 S2 衛星圖與 LULC (RGB 處理)
-                        const r = Array.isArray(v) ? v[0] : v;
-                        if (r === 0 || r === null) return null;
-                        return Array.isArray(v) ? `rgb(${v[0]},${v[1]},${v[2]})` : `rgb(${v},${v},${v})`;
-                    },
-                    // 修正 2：效能大幅優化，調低解析度(32)，讓妳的拉桿滑起來跟飛的一樣
-                    resolution: 32 
-                });
-            } catch (e) {
-                return null;
-            }
-        }
-
-        async function update(i) {
-            const item = timeline[i];
-            document.getElementById("date-label").innerText = "觀測日期: " + item.d;
-            timeGroup.clearLayers();
-            
-            // 使用 Promise.all 同時讀取，減少等待時間
-            const [s2, flood] = await Promise.all([
-                loadLayer(item.s2, 's2'),
-                loadLayer(item.f, 'f')
-            ]);
-            
-            if (s2) s2.addTo(timeGroup);
-            if (flood) flood.addTo(timeGroup);
-        }
-
-        async function init() {
-            const lulc = await loadLayer("data/LULC_174_COG.tif", 'lulc');
-            const rain = await loadLayer("data/Precip_174_COG.tif", 'rain');
-            
-            await update(0);
-
-            L.control.layers(null, { 
-                "土地利用 (LULC)": lulc, 
-                "累積降雨 (Precip)": rain, 
-                "⚠️ 時序影像 (S1/S2)": timeGroup 
-            }, {collapsed: false}).addTo(map);
-
-            // 加入圖例
-            const legend = L.control({position: 'bottomright'});
-            legend.onAdd = function () {
-                const div = L.DomUtil.create('div', 'legend');
-                div.innerHTML += '<b>圖層說明</b><br>';
-                div.innerHTML += '<i style="background: #00FFFF"></i> 淹水範圍<br>';
-                div.innerHTML += '<i style="background: #08306b"></i> 累積降雨<br>';
-                div.innerHTML += '<i style="background: #2c7fb8"></i> 衛星影像';
-                return div;
-            };
-            legend.addTo(map);
-
-            document.getElementById("time-slider").oninput = (e) => update(e.target.value);
-        }
-        init();
-    </script>
-</body>
-</html>
+        // 這是大數據最快路徑：XYZ Tiles
+        s2Layer = L.tileLayer(item.s2, {tms: true, opacity: 0.7}).addTo(map);
+        floodLayer = L.tileLayer(item.f, {tms: true, opacity: 0.9}).addTo(map);
+    }
+</script>
