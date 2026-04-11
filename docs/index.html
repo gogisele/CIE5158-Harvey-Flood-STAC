@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skopje Flood GIS</title>
+    <title>Skopje Flood: Big Data Analysis</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        body { margin: 0; } #map { height: 100vh; background: #222; }
-        .slider-box { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background: white; padding: 15px; border-radius: 10px; text-align: center; width: 300px; }
+        body { margin: 0; } #map { height: 100vh; background: #111; }
+        .slider-box { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background: white; padding: 15px; border-radius: 12px; width: 350px; text-align: center; font-family: sans-serif; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
     <div id="map"></div>
     <div class="slider-box">
-        <b id="date-label">載入中...</b><br>
+        <b id="date-label">正在讀取時序資料...</b><br>
         <input type="range" id="time-slider" min="0" max="2" step="1" value="0" style="width:100%">
     </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -20,16 +20,19 @@
     <script>
         const map = L.map('map').setView([42.0, 21.43], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
         const timeline = [
             { d: "2015-07-20", s2: "data/S2_20150814_COG.tif", f: "data/Flood_20150720_COG.tif" },
             { d: "2015-08-13", s2: "data/S2_20150814_COG.tif", f: "data/Flood_20150813_COG.tif" },
             { d: "2016-08-07", s2: "data/S2_20160805_COG.tif", f: "data/Flood_20160807_COG.tif" }
         ];
-        let dynamicGroup = L.layerGroup().addTo(map);
-        async function load(url, type) {
+
+        let timeGroup = L.layerGroup().addTo(map);
+
+        async function loadLayer(url, type) {
             const georaster = await parseGeoraster(await (await fetch(url)).arrayBuffer());
             return new GeoRasterLayer({
-                georaster, opacity: type === 'f' ? 0.8 : 0.6,
+                georaster, opacity: type === 'f' ? 0.8 : 0.7,
                 pixelValuesToColorFn: v => {
                     if (type === 'f') return v > 0 ? "#00FFFF" : null;
                     if (type === 'rain') return v > 10 ? "#2171b5" : null;
@@ -38,17 +41,24 @@
                 }, resolution: 128
             });
         }
+
         async function update(i) {
-            const item = timeline[i]; document.getElementById("date-label").innerText = item.d;
-            dynamicGroup.clearLayers();
-            (await load(item.s2, 's2')).addTo(dynamicGroup);
-            (await load(item.f, 'f')).addTo(dynamicGroup);
+            const item = timeline[i];
+            document.getElementById("date-label").innerText = "觀測日期: " + item.d;
+            timeGroup.clearLayers();
+            (await loadLayer(item.s2, 's2')).addTo(timeGroup);
+            (await loadLayer(item.f, 'f')).addTo(timeGroup);
         }
+
         async function init() {
-            const lulc = await load("data/LULC_174_COG.tif", 'lulc');
-            const rain = await load("data/Precip_174_COG.tif", 'rain');
+            const lulc = await loadLayer("data/LULC_174_COG.tif", 'lulc');
+            const rain = await loadLayer("data/Precip_174_COG.tif", 'rain');
             await update(0);
-            L.control.layers(null, { "土地利用 (LULC)": lulc, "累積降雨": rain, "時序圖層": dynamicGroup }, {collapsed: false}).addTo(map);
+            L.control.layers(null, { 
+                "土地利用 (LULC)": lulc, 
+                "累積降雨 (Precip)": rain, 
+                "⚠️ 時序影像 (S1/S2)": timeGroup 
+            }, {collapsed: false}).addTo(map);
             document.getElementById("time-slider").oninput = (e) => update(e.target.value);
         }
         init();
