@@ -1,22 +1,91 @@
-<script>
-    // 妳的時序圖層現在變成了簡單的 TileLayer
-    const timeline = [
-        { d: "2015-07-20", s2: "tiles/s2_20150814/{z}/{x}/{y}.png", f: "tiles/flood_20150720/{z}/{x}/{y}.png" },
-        { d: "2015-08-13", s2: "tiles/s2_20150814/{z}/{x}/{y}.png", f: "tiles/flood_20150813/{z}/{x}/{y}.png" },
-        { d: "2016-08-07", s2: "tiles/s2_20160805/{z}/{x}/{y}.png", f: "tiles/flood_20160807/{z}/{x}/{y}.png" }
-    ];
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skopje Flood Analysis - Big Data Pipeline</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; background: #000; }
+        #map { height: 100vh; width: 100%; }
+        .ui-panel {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(255,255,255,0.95); padding: 15px;
+            border-radius: 12px; width: 350px; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .error-msg { position: fixed; top: 10px; color: red; background: white; z-index: 2000; }
+    </style>
+</head>
+<body>
+    <div id="error-console" class="error-msg"></div>
+    <div id="map"></div>
+    <div class="ui-panel">
+        <div id="date-label" style="font-weight:bold; color:#007bff; margin-bottom:10px;">系統初始化中...</div>
+        <input type="range" id="time-slider" min="0" max="2" step="1" value="0" style="width:100%">
+    </div>
 
-    let s2Layer, floodLayer;
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/georaster"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
 
-    function update(i) {
-        const item = timeline[i];
-        document.getElementById("date-label").innerText = item.d;
-        
-        if(s2Layer) map.removeLayer(s2Layer);
-        if(floodLayer) map.removeLayer(floodLayer);
+    <script>
+        // 除錯小工具
+        function logErr(msg) { document.getElementById('error-console').innerHTML += msg + '<br>'; }
 
-        // 這是大數據最快路徑：XYZ Tiles
-        s2Layer = L.tileLayer(item.s2, {tms: true, opacity: 0.7}).addTo(map);
-        floodLayer = L.tileLayer(item.f, {tms: true, opacity: 0.9}).addTo(map);
-    }
-</script>
+        const map = L.map('map').setView([42.0, 21.43], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // 使用相對路徑，避免 GitHub Pages 找不到檔案
+        const timeline = [
+            { d: "2015-07-20", s2: "data/S2_20150814_COG.tif", f: "data/Flood_20150720_COG.tif" },
+            { d: "2015-08-13", s2: "data/S2_20150814_COG.tif", f: "data/Flood_20150813_COG.tif" },
+            { d: "2016-08-07", s2: "data/S2_20160805_COG.tif", f: "data/Flood_20160807_COG.tif" }
+        ];
+
+        let timeGroup = L.layerGroup().addTo(map);
+
+        async function loadCOG(url, type) {
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`找不到檔案: ${url}`);
+                const buf = await res.arrayBuffer();
+                const g = await parseGeoraster(buf);
+                return new GeoRasterLayer({
+                    georaster: g,
+                    opacity: type === 'f' ? 0.9 : 0.7,
+                    pixelValuesToColorFn: v => {
+                        const val = Array.isArray(v) ? v[0] : v;
+                        if (type === 'f') return (val === 1) ? "#00FFFF" : null;
+                        if (val === 0 || val === null) return null;
+                        return Array.isArray(v) ? `rgb(${v[0]},${v[1]},${v[2]})` : `rgb(${v},${v},${v})`;
+                    },
+                    resolution: 64
+                });
+            } catch (e) {
+                logErr(e.message);
+                return null;
+            }
+        }
+
+        async function update(i) {
+            const item = timeline[i];
+            document.getElementById("date-label").innerText = "觀測日期: " + item.d;
+            timeGroup.clearLayers();
+            const [s, f] = await Promise.all([loadCOG(item.s2, 's2'), loadCOG(item.f, 'f')]);
+            if (s) s.addTo(timeGroup);
+            if (f) f.addTo(timeGroup);
+        }
+
+        async function init() {
+            try {
+                // 如果靜態 LULC 載不到，不影響主功能
+                const lulc = await loadCOG("data/LULC_174_COG.tif", 'lulc');
+                const rain = await loadCOG("data/Precip_174_COG.tif", 'rain');
+                await update(0);
+                L.control.layers(null, { "土地利用": lulc, "累積降雨": rain, "時序圖層": timeGroup }, {collapsed:false}).addTo(map);
+                document.getElementById("time-slider").oninput = (e) => update(e.target.value);
+            } catch (e) { logErr("初始化錯誤: " + e.message); }
+        }
+        init();
+    </script>
+</body>
+</html>
