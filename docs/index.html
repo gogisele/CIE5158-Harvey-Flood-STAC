@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skopje Flood WebGIS - Gisele</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body { margin: 0; } #map { height: 100vh; width: 100%; }
+        .legend { position: absolute; bottom: 30px; left: 10px; z-index: 1000; background: white; padding: 10px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.2); font-family: sans-serif; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
+        .color-box { width: 18px; height: 18px; margin-right: 8px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="legend">
+        <h4>LULC Legend</h4>
+        <div class="legend-item"><div class="color-box" style="background: #419BDF;"></div> Water (Flood)</div>
+        <div class="legend-item"><div class="color-box" style="background: #397D49;"></div> Trees</div>
+        <div class="legend-item"><div class="color-box" style="background: #C4281B;"></div> Built Area</div>
+        <div class="legend-item"><div class="color-box" style="background: #E49635;"></div> Crops</div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/georaster"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+
+    <script>
+        var map = L.map('map').setView([42.0, 21.43], 13);
+        L.tileLayer('https://{s}.tile.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+        // 使用相對路徑讀取妳剛剛放進 data 資料夾的圖
+        var url = "data/LULC_174_COG.tif";
+
+        fetch(url).then(res => res.arrayBuffer()).then(arrayBuffer => {
+            parseGeoraster(arrayBuffer).then(georaster => {
+                var layer = new GeoRasterLayer({
+                    georaster: georaster, opacity: 0.7,
+                    pixelValuesToColorFn: value => {
+                        const colors = { 1: "#419BDF", 2: "#397D49", 5: "#E49635", 6: "#C4281B" };
+                        return colors[value] || null;
+                    },
+                    resolution: 256
+                });
+                layer.addTo(map);
+                map.fitBounds(layer.getBounds());
+            });
+        });
+    </script>
+</body>
+</html>
