@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skopje Flood Analysis - Gisele</title>
+    <title>Skopje Flood Multi-Layer Analysis</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; }
         #map { height: 100vh; width: 100%; background: #ffffff; }
+        /* 圖例優化 */
         .legend {
-            background: white; padding: 10px; border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 12px;
+            background: rgba(255, 255, 255, 0.9); padding: 12px; border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
         }
-        .legend h4 { margin: 5px 0; font-size: 13px; border-bottom: 1px solid #eee; }
-        .legend i { width: 14px; height: 14px; float: left; margin-right: 8px; opacity: 0.9; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 3px; }
+        .legend h4 { margin: 0 0 8px; font-size: 14px; border-bottom: 2px solid #eee; padding-bottom: 4px; }
+        .legend i { width: 18px; height: 18px; float: left; margin-right: 10px; opacity: 0.8; border: 1px solid #aaa; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; font-weight: 500; }
+        .section-title { margin-top: 10px; font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -25,14 +28,16 @@
 
     <script>
         var map = L.map('map').setView([42.0, 21.43], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
 
-        // 降雨配色 (單數值)
+        // 降雨配色邏輯
         function getRainColor(v) {
             if (v > 50) return "#08306b";
             if (v > 25) return "#2171b5";
             if (v > 10) return "#6baed6";
-            if (v > 0) return "#deebf7";
+            if (v > 0)  return "#deebf7";
             return null;
         }
 
@@ -43,18 +48,13 @@
             
             return new GeoRasterLayer({
                 georaster: g,
-                opacity: type === 'LULC' ? 0.8 : 0.4,
+                opacity: type === 'LULC' ? 0.8 : 0.5, // 降雨層設為 0.5 方便透視
                 pixelValuesToColorFn: values => {
-                    // 如果是 LULC (RGB 三個數字)
                     if (type === 'LULC' && Array.isArray(values)) {
                         const [r, g, b] = values;
-                        if (r === 0 && g === 0 && b === 0) return null; // 背景黑色變透明
-                        return `rgb(${r},${g},${b})`; // 直接把 [57, 125, 73] 變成顏色
+                        return (r === 0 && g === 0 && b === 0) ? null : `rgb(${r},${g},${b})`;
                     }
-                    // 如果是降雨 (單一個數字)
-                    if (type === 'Rain') {
-                        return getRainColor(values);
-                    }
+                    if (type === 'Rain') return getRainColor(values);
                     return null;
                 },
                 resolution: 128
@@ -74,18 +74,22 @@
                 "累積降雨 (Rainfall)": rain
             }, { collapsed: false }).addTo(map);
 
-            // 加入圖例
+            // 建立圖例
             var legend = L.control({position: 'bottomright'});
             legend.onAdd = function () {
                 var div = L.DomUtil.create('div', 'legend');
-                div.innerHTML = '<h4>LULC (Top)</h4>' +
+                div.innerHTML = '<h4>Map Legend</h4>' +
+                    '<div class="section-title">Rainfall (mm)</div>' +
+                    '<div class="legend-item"><i style="background:#08306b"></i> > 50 mm</div>' +
+                    '<div class="legend-item"><i style="background:#2171b5"></i> 25 - 50 mm</div>' +
+                    '<div class="legend-item"><i style="background:#6baed6"></i> 10 - 25 mm</div>' +
+                    '<div class="legend-item"><i style="background:#deebf7"></i> 0 - 10 mm</div>' +
+                    
+                    '<div class="section-title">Land Use (LULC)</div>' +
                     '<div class="legend-item"><i style="background:#419BDF"></i> 水域 (Water)</div>' +
-                    '<div class="legend-item"><i style="background:#C4281B"></i> 建築 (Built)</div>' +
+                    '<div class="legend-item"><i style="background:#C4281B"></i> 建築 (Built-up)</div>' +
                     '<div class="legend-item"><i style="background:#397D49"></i> 森林 (Trees)</div>' +
-                    '<div class="legend-item"><i style="background:#E49635"></i> 農地 (Crops)</div>' +
-                    '<h4>Rainfall Intensity</h4>' +
-                    '<div class="legend-item"><i style="background:#08306b"></i> 重大雨量 (>50mm)</div>' +
-                    '<div class="legend-item"><i style="background:#deebf7"></i> 輕微雨量 (<10mm)</div>';
+                    '<div class="legend-item"><i style="background:#E49635"></i> 農地 (Crops)</div>';
                 return div;
             };
             legend.addTo(map);
