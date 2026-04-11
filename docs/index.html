@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skopje Flood: Full Integration</title>
+    <title>Skopje Flood Interactive Analysis</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
@@ -10,15 +10,15 @@
         .slider-box {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             z-index: 1000; background: rgba(255,255,255,0.9); padding: 15px;
-            border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.5); width: 400px; text-align: center;
+            border-radius: 10px; width: 350px; text-align: center; font-family: sans-serif;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
     <div class="slider-box">
-        <div id="date-label" style="font-weight:bold; color:#007bff; margin-bottom:5px;">時間軸</div>
-        <input type="range" id="time-slider" min="0" max="2" step="1" value="0">
+        <div id="date-label" style="font-weight:bold; margin-bottom:10px;">日期: 載入中...</div>
+        <input type="range" id="time-slider" min="0" max="2" step="1" value="0" style="width:100%;">
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -27,62 +27,61 @@
 
     <script>
         var map = L.map('map').setView([42.0, 21.43], 12);
-        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
         const timeline = [
-            { date: "2015-07-20", s2: "data/S2_20150814_COG.tif", flood: "data/Flood_20150720_COG.tif" },
-            { date: "2015-08-13", s2: "data/S2_20150814_COG.tif", flood: "data/Flood_20150813_COG.tif" },
-            { date: "2016-08-07", s2: "data/S2_20160805_COG.tif", flood: "data/Flood_20160807_COG.tif" }
+            { date: "2015-07-20", s2: "data/S2_20150814.tif", flood: "data/Flood_20150720.tif" },
+            { date: "2015-08-13", s2: "data/S2_20150814.tif", flood: "data/Flood_20150813.tif" },
+            { date: "2016-08-07", s2: "data/S2_20160805.tif", flood: "data/Flood_20160807.tif" }
         ];
 
-        // 建立群組：這能確保拉桿更新時，其他圖層(LULC)不會被波及
-        let s2Group = L.layerGroup().addTo(map);
-        let floodGroup = L.layerGroup().addTo(map);
+        // 圖層群組 (核心：避免清掉其他圖層)
+        let dynamicGroup = L.layerGroup().addTo(map);
 
-        async function fetchLayer(url, type) {
+        async function loadCOG(url, type) {
             const res = await fetch(url);
             const g = await parseGeoraster(await res.arrayBuffer());
             return new GeoRasterLayer({
                 georaster: g,
-                opacity: (type === 'Flood') ? 0.9 : 0.7,
+                opacity: type === 'flood' ? 0.8 : 0.6,
                 pixelValuesToColorFn: v => {
-                    if (type === 'S2' || type === 'LULC') {
+                    if (type === 's2' || type === 'lulc') {
                         const r = Array.isArray(v) ? v[0] : v;
-                        if (r === 0 || r === null) return null;
-                        return Array.isArray(v) ? `rgb(${v[0]},${v[1]},${v[2]})` : `rgb(${v},${v},${v})`;
+                        return r === 0 ? null : (Array.isArray(v) ? `rgb(${v[0]},${v[1]},${v[2]})` : `rgb(${v},${v},${v})`);
                     }
-                    if (type === 'Flood') return v > 0 ? "#00FFFF" : null; // 只要數值大於0就顯示螢光青
-                    if (type === 'Rain') return v > 50 ? "#08306b" : v > 10 ? "#6baed6" : null;
+                    if (type === 'flood') return v > 0 ? "#00FFFF" : null;
+                    if (type === 'rain') return v > 50 ? "#08306b" : v > 10 ? "#6baed6" : null;
                     return null;
                 },
                 resolution: 128
             });
         }
 
-        async function updateTime(index) {
+        async function update(index) {
             const data = timeline[index];
             document.getElementById("date-label").innerText = "觀測日期: " + data.date;
-            s2Group.clearLayers();
-            floodGroup.clearLayers();
-            (await fetchLayer(data.s2, 'S2')).addTo(s2Group);
-            (await fetchLayer(data.flood, 'Flood')).addTo(floodGroup);
+            
+            dynamicGroup.clearLayers();
+            const s2 = await loadCOG(data.s2, 's2');
+            const flood = await loadCOG(data.flood, 'flood');
+            s2.addTo(dynamicGroup);
+            flood.addTo(dynamicGroup);
         }
 
         async function init() {
-            // 載入妳心心念念的 LULC 和降雨圖層
-            const lulc = await fetchLayer("data/LULC_174_COG.tif", 'LULC');
-            const rain = await fetchLayer("data/Precip_174_COG.tif", 'Rain');
+            const lulc = await loadCOG("data/LULC_174_COG.tif", 'lulc');
+            const rain = await loadCOG("data/Precip_174_COG.tif", 'rain');
+            
+            await update(0);
 
-            await updateTime(0);
+            // 圖層選單
+            L.control.layers(null, {
+                "動態影像 (時序)": dynamicGroup,
+                "土地利用 (LULC)": lulc,
+                "降雨強度 (Rain)": rain
+            }, { collapsed: false }).addTo(map);
 
-            // 右上角選單：這次我把靜態圖層跟動態群組都加進去
-            L.control.layers(
-                { "衛星底圖 (時序)": s2Group, "標準地圖": osm },
-                { "⚠️ 淹水範圍 (時序)": floodGroup, "土地利用 (LULC)": lulc, "累積降雨 (Rain)": rain },
-                { collapsed: false }
-            ).addTo(map);
-
-            document.getElementById("time-slider").oninput = (e) => updateTime(e.target.value);
+            document.getElementById("time-slider").oninput = (e) => update(e.target.value);
         }
 
         init();

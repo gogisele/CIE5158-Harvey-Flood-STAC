@@ -1,62 +1,48 @@
-import os
-import subprocess
-import glob
-import re
-import json
+import os, subprocess, glob, json
 
-# --- 路徑設定 ---
-SHP_DIR = "/home/gisele/webgis_work/S1_unzipped"
-DATA_DIR = "docs/data"
-# 使用這張成功的影像作為座標與解析度的「模版」
-REF_IMAGE = f"{DATA_DIR}/S2_20150814_COG.tif"
+# --- 設定路徑 ---
+NAS_S2 = "/home/gisele/nas/02.Course/26S_BigData/KuroSiwo_STAC_V5/EMSR174_Flood_in_Skopje/S2"
+S1_UNZIPPED = "/home/gisele/webgis_work/S1_unzipped" # 妳剛才解壓好的地方
+DATA_OUT = "docs/data"
+os.makedirs(DATA_OUT, exist_ok=True)
 
-os.makedirs(DATA_DIR, exist_ok=True)
+def run(cmd):
+    subprocess.run(cmd)
 
-def get_ref_info(path):
-    """取得參考影像的邊界(Extent)與解析度(Resolution)"""
-    cmd = ["gdalinfo", "-json", path]
-    res = subprocess.run(cmd, capture_output=True, text=True)
-    info = json.loads(res.stdout)
-    coords = info['cornerCoordinates']
-    # [xmin, ymin, xmax, ymax]
-    extent = [coords['upperLeft'][0], coords['lowerRight'][1], coords['lowerRight'][0], coords['upperLeft'][1]]
-    res_x = abs(info['geoTransform'][1])
-    res_y = abs(info['geoTransform'][5])
-    return extent, res_x, res_y
+# 1. 處理靜態底圖 (只做一次)
+# 請手動確保妳原本的 LULC_174_COG.tif 和 Precip_174_COG.tif 已經在 docs/data 裡
 
-def run_rio(inp, outp):
-    if os.path.exists(outp): os.remove(outp)
-    print(f">>> 正在建立 COG: {outp}")
-    subprocess.run(["rio", "cogeo", "create", inp, outp])
+# 2. 處理 S2 衛星底圖 (縫合並轉 COG)
+print(">>> 處理 S2 衛星影像...")
+dates = ["20150814", "20160805"]
+for d in dates:
+    tiles = glob.glob(f"{NAS_S2}/*{d}*.tif")
+    vrt = f"{d}.vrt"
+    out = f"{DATA_OUT}/S2_{d}.tif"
+    run(["gdalbuildvrt", vrt] + tiles)
+    if os.path.exists(out): os.remove(out)
+    run(["rio", "cogeo", "create", vrt, out])
+    os.remove(vrt)
 
-# 1. 取得參考影像的座標資訊
-print("--- 讀取衛星影像空間資訊 ---")
-ext, rx, ry = get_ref_info(REF_IMAGE)
+# 3. 處理 S1 淹水向量 (SHP 轉 COG) - 解決座標報錯的核心
+print(">>> 處理 S1 淹水標籤...")
+# 我們直接指定那三個日期的 SHP 路徑
+s1_jobs = [
+    ("20150720", f"{S1_UNZIPPED}/S1A_IW_GRDH_1SDV_20150720T*/mask.shp"),
+    ("20150813", f"{S1_UNZIPPED}/S1A_IW_GRDH_1SDV_20150813T*/mask.shp"),
+    ("20160807", f"{S1_UNZIPPED}/S1A_IW_GRDH_1SDV_20160807T*/mask.shp")
+]
 
-# 2. 處理 S1 向量轉圖片
-shp_files = glob.glob(f"{SHP_DIR}/**/mask.shp", recursive=True)
-print(f"找到 {len(shp_files)} 個淹水範圍向量檔")
-
-for shp in shp_files:
-    match = re.search(r"(\d{8})T", shp)
-    if not match: continue
-    date_str = match.group(1)
+for date, pattern in s1_jobs:
+    shp = glob.glob(pattern)[0]
+    out = f"{DATA_OUT}/Flood_{date}.tif"
+    temp = f"temp_{date}.tif"
     
-    temp_tif = f"temp_{date_str}.tif"
-    out_cog = f"{DATA_DIR}/Flood_{date_str}_COG.tif"
-    
-    print(f"--- 正在處理日期: {date_str} ---")
-    # 使用 -te (target extent) 和 -tr (target resolution) 完美對齊 S2 影像
-    subprocess.run([
-        "gdal_rasterize", "-at", "-burn", "1", 
-        "-te", str(ext[0]), str(ext[1]), str(ext[2]), str(ext[3]),
-        "-tr", str(rx), str(ry),
-        "-a_nodata", "0", "-ot", "Byte",
-        shp, temp_tif
-    ])
-    
-    if os.path.exists(temp_tif):
-        run_rio(temp_tif, out_cog)
-        os.remove(temp_tif)
+    # 使用 -extents 讓它自動計算範圍，不再手動輸入解析度避免報錯
+    run(["gdal_rasterize", "-burn", "1", "-at", "-tr", "0.0001", "0.0001", 
+         "-a_nodata", "0", "-ot", "Byte", shp, temp])
+    if os.path.exists(out): os.remove(out)
+    run(["rio", "cogeo", "create", temp, out])
+    os.remove(temp)
 
-print("✨ 萬事具備！資料已精準對齊。")
+print("✨ 所有資料已就緒！")
