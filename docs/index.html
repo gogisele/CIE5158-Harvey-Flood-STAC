@@ -1,26 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skopje Flood Multi-Layer Analysis</title>
+    <title>Skopje Flood Time-Series Analysis</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; }
-        #map { height: 100vh; width: 100%; background: #ffffff; }
-        /* 圖例優化 */
-        .legend {
-            background: rgba(255, 255, 255, 0.9); padding: 12px; border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+        #map { height: 100vh; width: 100%; background: #000; }
+        
+        /* 時間拉桿 UI */
+        .slider-box {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(255,255,255,0.95); padding: 15px 25px;
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); width: 350px;
+            text-align: center; font-family: 'Segoe UI', sans-serif;
         }
-        .legend h4 { margin: 0 0 8px; font-size: 14px; border-bottom: 2px solid #eee; padding-bottom: 4px; }
-        .legend i { width: 18px; height: 18px; float: left; margin-right: 10px; opacity: 0.8; border: 1px solid #aaa; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 6px; font-size: 12px; font-weight: 500; }
-        .section-title { margin-top: 10px; font-weight: bold; color: #555; font-size: 11px; text-transform: uppercase; }
+        input[type=range] { width: 100%; margin: 10px 0; cursor: pointer; }
+        .date-display { font-size: 18px; font-weight: bold; color: #2c3e50; }
+        
+        /* 圖例 */
+        .legend { background: white; padding: 10px; border-radius: 8px; font-size: 12px; line-height: 1.5; }
+        .legend i { width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    
+    <div class="slider-box">
+        <div id="date-label" class="date-display">日期: 載入中...</div>
+        <input type="range" id="time-slider" min="0" max="2" step="1" value="0">
+        <div style="display:flex; justify-content: space-between; font-size: 10px; color: #7f8c8d;">
+            <span>2015-07-20</span>
+            <span>2015-08-13</span>
+            <span>2016-08-07</span>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/georaster"></script>
@@ -28,74 +42,63 @@
 
     <script>
         var map = L.map('map').setView([42.0, 21.43], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // 降雨配色邏輯
-        function getRainColor(v) {
-            if (v > 50) return "#08306b";
-            if (v > 25) return "#2171b5";
-            if (v > 10) return "#6baed6";
-            if (v > 0)  return "#deebf7";
-            return null;
-        }
+        // 1. 定義時間軸對應的資料檔案 (請確認 data 資料夾內有這些檔案)
+        const timeline = [
+            { label: "2015-07-20 (災前)", s2: "data/S2_20150814_COG.tif", flood: "data/Flood_20150720_COG.tif" },
+            { label: "2015-08-13 (災中)", s2: "data/S2_20150814_COG.tif", flood: "data/Flood_20150813_COG.tif" },
+            { label: "2016-08-07 (災後)", s2: "data/S2_20160805_COG.tif", flood: "data/Flood_20160807_COG.tif" }
+        ];
 
-        async function loadLayer(url, type) {
-            const res = await fetch(url);
-            const ab = await res.arrayBuffer();
-            const g = await parseGeoraster(ab);
-            
-            return new GeoRasterLayer({
-                georaster: g,
-                opacity: type === 'LULC' ? 0.8 : 0.5, // 降雨層設為 0.5 方便透視
-                pixelValuesToColorFn: values => {
-                    if (type === 'LULC' && Array.isArray(values)) {
-                        const [r, g, b] = values;
-                        return (r === 0 && g === 0 && b === 0) ? null : `rgb(${r},${g},${b})`;
-                    }
-                    if (type === 'Rain') return getRainColor(values);
-                    return null;
-                },
+        let s2Layer, floodLayer;
+
+        // 2. 核心：載入圖層函式
+        async function updateLayers(index) {
+            const data = timeline[index];
+            document.getElementById("date-label").innerText = data.label;
+
+            // 移除舊圖層
+            if (s2Layer) map.removeLayer(s2Layer);
+            if (floodLayer) map.removeLayer(floodLayer);
+
+            // 載入衛星影像 (RGB)
+            const s2Res = await fetch(data.s2);
+            const s2Geo = await parseGeoraster(await s2Res.arrayBuffer());
+            s2Layer = new GeoRasterLayer({
+                georaster: s2Geo,
+                pixelValuesToColorFn: vals => (vals[0] === 0) ? null : `rgb(${vals[0]},${vals[1]},${vals[2]})`,
                 resolution: 128
-            });
+            }).addTo(map);
+
+            // 載入淹水範圍 (螢光青色)
+            const flRes = await fetch(data.flood);
+            const flGeo = await parseGeoraster(await flRes.arrayBuffer());
+            floodLayer = new GeoRasterLayer({
+                georaster: flGeo,
+                opacity: 0.7,
+                pixelValuesToColorFn: v => v > 0 ? "#00FFFF" : null,
+                resolution: 128
+            }).addTo(map);
         }
 
-        Promise.all([
-            loadLayer("data/Precip_174_COG.tif", "Rain"),
-            loadLayer("data/LULC_174_COG.tif", "LULC")
-        ]).then(layers => {
-            const [rain, lulc] = layers;
-            if (rain) rain.addTo(map);
-            if (lulc) lulc.addTo(map);
-
-            L.control.layers(null, {
-                "土地利用 (LULC)": lulc,
-                "累積降雨 (Rainfall)": rain
-            }, { collapsed: false }).addTo(map);
-
-            // 建立圖例
-            var legend = L.control({position: 'bottomright'});
-            legend.onAdd = function () {
-                var div = L.DomUtil.create('div', 'legend');
-                div.innerHTML = '<h4>Map Legend</h4>' +
-                    '<div class="section-title">Rainfall (mm)</div>' +
-                    '<div class="legend-item"><i style="background:#08306b"></i> > 50 mm</div>' +
-                    '<div class="legend-item"><i style="background:#2171b5"></i> 25 - 50 mm</div>' +
-                    '<div class="legend-item"><i style="background:#6baed6"></i> 10 - 25 mm</div>' +
-                    '<div class="legend-item"><i style="background:#deebf7"></i> 0 - 10 mm</div>' +
-                    
-                    '<div class="section-title">Land Use (LULC)</div>' +
-                    '<div class="legend-item"><i style="background:#419BDF"></i> 水域 (Water)</div>' +
-                    '<div class="legend-item"><i style="background:#C4281B"></i> 建築 (Built-up)</div>' +
-                    '<div class="legend-item"><i style="background:#397D49"></i> 森林 (Trees)</div>' +
-                    '<div class="legend-item"><i style="background:#E49635"></i> 農地 (Crops)</div>';
-                return div;
-            };
-            legend.addTo(map);
-            
-            if (lulc) map.fitBounds(lulc.getBounds());
+        // 3. 監聽拉桿變動
+        document.getElementById("time-slider").addEventListener("input", function(e) {
+            updateLayers(e.target.value);
         });
+
+        // 4. 加入圖例
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function () {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<h4>圖例 Legend</h4>' +
+                '<div><i style="background:#00FFFF"></i> 淹水範圍 (Flood Mask)</div>' +
+                '<div><i style="background:#397D49"></i> 植被/森林 (S2 Image)</div>';
+            return div;
+        };
+        legend.addTo(map);
+
+        // 初始化
+        updateLayers(0);
     </script>
 </body>
-</html>
