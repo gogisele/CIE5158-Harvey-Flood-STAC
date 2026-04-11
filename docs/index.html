@@ -1,22 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skopje Flood: Big Data Analysis</title>
+    <title>Skopje Flood Time-Series Analysis</title>
+    <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        body { margin: 0; } #map { height: 100vh; background: #111; }
-        .slider-box { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background: white; padding: 15px; border-radius: 12px; width: 350px; text-align: center; font-family: sans-serif; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        body { margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; background: #111; }
+        
+        /* 1. 圖例樣式 (Legend CSS) */
+        .legend {
+            background: rgba(255, 255, 255, 0.9); padding: 10px;
+            line-height: 18px; color: #333; border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2); font-size: 12px;
+        }
+        .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.8; }
+
+        /* 時間拉桿 UI */
+        .slider-box {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: white; padding: 15px; border-radius: 12px;
+            width: 320px; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .date-label { font-size: 16px; font-weight: bold; color: #007bff; margin-bottom: 8px; }
     </style>
 </head>
 <body>
     <div id="map"></div>
     <div class="slider-box">
-        <b id="date-label">正在讀取時序資料...</b><br>
+        <div id="date-label" class="date-label">正在讀取資料...</div>
         <input type="range" id="time-slider" min="0" max="2" step="1" value="0" style="width:100%">
     </div>
+
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+
     <script>
         const map = L.map('map').setView([42.0, 21.43], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
@@ -32,13 +51,16 @@
         async function loadLayer(url, type) {
             const georaster = await parseGeoraster(await (await fetch(url)).arrayBuffer());
             return new GeoRasterLayer({
-                georaster, opacity: type === 'f' ? 0.8 : 0.7,
+                georaster,
+                opacity: type === 'f' ? 0.85 : 0.7,
                 pixelValuesToColorFn: v => {
                     if (type === 'f') return v > 0 ? "#00FFFF" : null;
                     if (type === 'rain') return v > 10 ? "#2171b5" : null;
                     const r = Array.isArray(v) ? v[0] : v;
-                    return (r === 0 || r === null) ? null : (Array.isArray(v) ? `rgb(${v[0]},${v[1]},${v[2]})` : `rgb(${v},${v},${v})`);
-                }, resolution: 128
+                    if (r === 0 || r === null) return null;
+                    return Array.isArray(v) ? `rgb(${v[0]},${v[1]},${v[2]})` : `rgb(${v},${v},${v})`;
+                },
+                resolution: 64  // 🚀 加速關鍵：調低解析度讓渲染變快
             });
         }
 
@@ -54,11 +76,25 @@
             const lulc = await loadLayer("data/LULC_174_COG.tif", 'lulc');
             const rain = await loadLayer("data/Precip_174_COG.tif", 'rain');
             await update(0);
+
             L.control.layers(null, { 
                 "土地利用 (LULC)": lulc, 
                 "累積降雨 (Precip)": rain, 
                 "⚠️ 時序影像 (S1/S2)": timeGroup 
             }, {collapsed: false}).addTo(map);
+
+            // 2. 加入視覺圖例 (Legend Control)
+            const legend = L.control({position: 'bottomright'});
+            legend.onAdd = function () {
+                const div = L.DomUtil.create('div', 'legend');
+                div.innerHTML += '<b>圖層說明</b><br>';
+                div.innerHTML += '<i style="background: #00FFFF"></i> 淹水範圍<br>';
+                div.innerHTML += '<i style="background: #2171b5"></i> 累積降雨<br>';
+                div.innerHTML += '<i style="background: #2c7fb8"></i> 土地利用';
+                return div;
+            };
+            legend.addTo(map);
+
             document.getElementById("time-slider").oninput = (e) => update(e.target.value);
         }
         init();
