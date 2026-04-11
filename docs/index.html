@@ -1,51 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skopje Flood WebGIS - Gisele</title>
+    <title>Skopje Flood Multi-Layer WebGIS</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body { margin: 0; } #map { height: 100vh; width: 100%; }
-        .legend { position: absolute; bottom: 30px; left: 10px; z-index: 1000; background: white; padding: 10px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.2); font-family: sans-serif; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
-        .color-box { width: 18px; height: 18px; margin-right: 8px; border: 1px solid #ccc; }
+        .legend { background: white; padding: 10px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.2); line-height: 1.5; font-family: sans-serif; }
+        .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; border: 1px solid #999; }
     </style>
 </head>
 <body>
     <div id="map"></div>
-    <div class="legend">
-        <h4>LULC Legend</h4>
-        <div class="legend-item"><div class="color-box" style="background: #419BDF;"></div> Water (Flood)</div>
-        <div class="legend-item"><div class="color-box" style="background: #397D49;"></div> Trees</div>
-        <div class="legend-item"><div class="color-box" style="background: #C4281B;"></div> Built Area</div>
-        <div class="legend-item"><div class="color-box" style="background: #E49635;"></div> Crops</div>
-    </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
 
     <script>
-        var map = L.map('map').setView([42.0, 21.43], 13);
-        L.tileLayer('https://{s}.tile.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+        // 1. 初始化地圖 (改用 OSM 底圖避免證照錯誤)
+        var map = L.map('map').setView([42.0, 21.43], 12);
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
 
-        // 使用相對路徑讀取妳剛剛放進 data 資料夾的圖
-        var url = "data/LULC_174_COG.tif";
+        // 2. 定義顏色邏輯
+        const dwColors = { 1: "#419BDF", 2: "#397D49", 6: "#C4281B", 5: "#E49635" };
+        
+        // 降雨顏色邏輯 (數值越高藍色越深)
+        function getPrecipColor(val) {
+            return val > 50 ? "#08306b" : val > 30 ? "#2171b5" : val > 10 ? "#6baed6" : "#deebf7";
+        }
 
-        fetch(url).then(res => res.arrayBuffer()).then(arrayBuffer => {
-            parseGeoraster(arrayBuffer).then(georaster => {
-                var layer = new GeoRasterLayer({
-                    georaster: georaster, opacity: 0.7,
-                    pixelValuesToColorFn: value => {
-                        const colors = { 1: "#419BDF", 2: "#397D49", 5: "#E49635", 6: "#C4281B" };
-                        return colors[value] || null;
-                    },
-                    resolution: 256
-                });
-                layer.addTo(map);
-                map.fitBounds(layer.getBounds());
+        // 3. 非同步載入圖層的函式
+        async function addLayer(url, colorFn, name) {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            const georaster = await parseGeoraster(arrayBuffer);
+            return new GeoRasterLayer({
+                georaster: georaster, opacity: 0.6,
+                pixelValuesToColorFn: value => value === 0 || value === null ? null : colorFn(value),
+                resolution: 128
             });
-        });
+        }
+
+        // 4. 同時處理多個 COG 檔案
+        // 注意：請確保妳已經把 Precip_174_COG.tif 也傳到 data 資料夾
+        Promise.all([
+            addLayer("data/LULC_174_COG.tif", v => dwColors[v], "土地利用"),
+            // 如果妳還沒做降雨 COG，這行可以先註解掉
+            addLayer("data/Precip_174_COG.tif", v => getPrecipColor(v), "累積降雨")
+        ]).then(layers => {
+            const [lulcLayer, precipLayer] = layers;
+            
+            // 預設只開啟 LULC
+            lulcLayer.addTo(map);
+
+            // 加入圖層控制開關 (在右上角)
+            var overlayMaps = {
+                "土地利用 (LULC)": lulcLayer,
+                "累積降雨 (Precipitation)": precipLayer
+            };
+            L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
+            
+            map.fitBounds(lulcLayer.getBounds());
+        }).catch(err => console.error("圖層載入失敗，請檢查檔案路徑與名稱:", err));
     </script>
 </body>
 </html>
