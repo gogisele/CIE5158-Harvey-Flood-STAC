@@ -1,0 +1,71 @@
+{
+  "type": "Feature",
+  "stac_version": "1.1.0",
+  "stac_extensions": [],
+  "id": "S1",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          22.357315706930855,
+          40.79121821
+        ],
+        [
+          22.357315706930855,
+          42.697724319801814
+        ],
+        [
+          18.99689789209655,
+          42.697724319801814
+        ],
+        [
+          18.99689789209655,
+          40.79121821
+        ],
+        [
+          22.357315706930855,
+          40.79121821
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    18.99689789209655,
+    40.79121821,
+    22.357315706930855,
+    42.697724319801814
+  ],
+  "properties": {
+    "start_datetime": "2016-08-07T00:00:00Z",
+    "end_datetime": "2016-08-07T00:00:00Z",
+    "category": "S1",
+    "datetime": "2016-08-07T00:00:00Z"
+  },
+  "links": [
+    {
+      "rel": "root",
+      "href": "../../catalog.json",
+      "type": "application/json"
+    },
+    {
+      "rel": "parent",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "EMSR174_Flood_in_Skopje"
+    },
+    {
+      "rel": "collection",
+      "href": "../collection.json",
+      "type": "application/json",
+      "title": "EMSR174_Flood_in_Skopje"
+    }
+  ],
+  "assets": {
+    "s1_bundle": {
+      "href": "./S1_Label_EMSR174_Flood_in_Skopje.zip",
+      "type": "application/zip"
+    }
+  },
+  "collection": "EMSR174_Flood_in_Skopje"
+}
