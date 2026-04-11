@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Skopje Flood Analysis - Gisele</title>
+    <title>Skopje Flood Multi-Layer Analysis</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; }
-        #map { height: 100vh; width: 100%; }
-        /* 圖例樣式 */
+        #map { height: 100vh; width: 100%; background: #f0f0f0; }
         .legend {
             background: white; padding: 12px; line-height: 18px; color: #333;
-            border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.2); font-family: Arial, sans-serif;
+            border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.2); font-family: sans-serif;
+            max-width: 200px;
         }
-        .legend h4 { margin: 0 0 8px; font-size: 14px; }
-        .legend i { width: 16px; height: 16px; float: left; margin-right: 8px; opacity: 0.8; border: 1px solid #ccc; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 4px; font-size: 12px; }
+        .legend h4 { margin: 5px 0; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .legend i { width: 16px; height: 16px; float: left; margin-right: 8px; opacity: 0.8; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 4px; font-size: 11px; }
+        .ramp { width: 100%; height: 10px; margin: 5px 0; }
     </style>
 </head>
 <body>
@@ -25,59 +26,65 @@
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
 
     <script>
-        var map = L.map('map').setView([42.0, 21.43], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        var map = L.map('map').setView([42.0, 21.43], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // 配色定義
+        // 1. 土地利用顏色定義 (Dynamic World 標準)
         const dwColors = {
             1: "#419BDF", 2: "#397D49", 3: "#88B053", 4: "#7A87C6", 
             5: "#E49635", 6: "#C4281B", 7: "#E5D0A3", 8: "#A59B8F"
         };
-        const precipColor = "#08519c"; // 降雨用深藍色
 
-        // 建立圖層函式 (加入除錯 log)
-        async function loadLayer(url, colorFn, name) {
-            try {
-                const response = await fetch(url);
-                const arrayBuffer = await response.arrayBuffer();
-                const georaster = await parseGeoraster(arrayBuffer);
-                return new GeoRasterLayer({
-                    georaster: georaster,
-                    opacity: 0.6,
-                    pixelValuesToColorFn: value => value > 0 ? colorFn(value) : null,
-                    resolution: 128
-                });
-            } catch (e) {
-                console.error(`無法載入圖層 ${name}:`, e);
-                return null;
-            }
+        // 2. 降雨強度配色 (根據數值調整顏色深淺)
+        function getRainColor(v) {
+            if (v > 50) return "#08306b"; // 極強降雨
+            if (v > 30) return "#2171b5"; // 強
+            if (v > 15) return "#6baed6"; // 中
+            if (v > 5)  return "#bdd7e7"; // 弱
+            return "#eff3ff";             // 極弱
         }
 
-        // 同時執行載入
+        async function loadLayer(url, colorFn, opacity) {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            const georaster = await parseGeoraster(arrayBuffer);
+            return new GeoRasterLayer({
+                georaster: georaster,
+                opacity: opacity,
+                pixelValuesToColorFn: value => (value === null || value <= 0) ? null : colorFn(value),
+                resolution: 128
+            });
+        }
+
+        // 載入順序：先降雨(底)，後 LULC(頂)
         Promise.all([
-            loadLayer("data/LULC_174_COG.tif", v => dwColors[v] || "#cccccc", "LULC"),
-            loadLayer("data/Precip_174_COG.tif", v => precipColor, "Rainfall")
+            loadLayer("data/Precip_174_COG.tif", getRainColor, 0.5),
+            loadLayer("data/LULC_174_COG.tif", v => dwColors[Math.round(v)] || null, 0.8)
         ]).then(layers => {
-            const [lulc, rain] = layers;
+            const [rain, lulc] = layers;
 
-            // 加入圖層控制開關
-            var overlays = {};
-            if (lulc) { lulc.addTo(map); overlays["土地利用 (LULC)"] = lulc; }
-            if (rain) { rain.addTo(map); overlays["降雨分布 (Rainfall)"] = rain; }
-            L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+            // 加入地圖
+            if (rain) rain.addTo(map);
+            if (lulc) lulc.addTo(map);
 
-            // 加入動態圖例 (Legend)
+            // 圖層控制 (右上角)
+            L.control.layers(null, {
+                "累積降雨 (Rainfall Intensity)": rain,
+                "土地利用 (LULC Classification)": lulc
+            }, { collapsed: false }).addTo(map);
+
+            // 動態圖例 (右下角)
             var legend = L.control({position: 'bottomright'});
             legend.onAdd = function (map) {
                 var div = L.DomUtil.create('div', 'legend');
-                div.innerHTML = '<h4>圖例 Legend</h4>' +
+                div.innerHTML = '<h4>LULC (Top Layer)</h4>' +
                     '<div class="legend-item"><i style="background:#419BDF"></i> 水域 (Water)</div>' +
+                    '<div class="legend-item"><i style="background:#C4281B"></i> 建築 (Built)</div>' +
                     '<div class="legend-item"><i style="background:#397D49"></i> 森林 (Trees)</div>' +
-                    '<div class="legend-item"><i style="background:#C4281B"></i> 建築 (Built Area)</div>' +
-                    '<div class="legend-item"><i style="background:#E49635"></i> 農地 (Crops)</div>' +
-                    '<div class="legend-item"><i style="background:#08519c; opacity: 0.5"></i> 累積降雨 (Precip)</div>';
+                    '<h4>Rainfall Intensity</h4>' +
+                    '<div class="legend-item"><i style="background:#08306b"></i> > 50 mm (Heavy)</div>' +
+                    '<div class="legend-item"><i style="background:#6baed6"></i> 15 - 30 mm</div>' +
+                    '<div class="legend-item"><i style="background:#eff3ff"></i> < 5 mm (Light)</div>';
                 return div;
             };
             legend.addTo(map);
