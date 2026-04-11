@@ -1,348 +1,57 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <title>Skopje Flood Time-Series WebGIS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
-
-    #map {
-      height: 100vh;
-      width: 100%;
-      background: #111;
-    }
-
-    .panel {
-      position: fixed;
-      left: 50%;
-      bottom: 24px;
-      transform: translateX(-50%);
-      z-index: 1000;
-      background: rgba(255,255,255,0.95);
-      border-radius: 14px;
-      padding: 14px 18px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
-      width: 430px;
-      text-align: center;
-      font-family: sans-serif;
-    }
-
-    .panel .title {
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: #005bbb;
-    }
-
-    .panel input[type="range"] {
-      width: 100%;
-    }
-
-    .msg-box {
-      position: fixed;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1200;
-      background: rgba(20,20,20,0.88);
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-family: monospace;
-      font-size: 13px;
-      max-width: 75vw;
-      display: none;
-      white-space: pre-wrap;
-    }
-  </style>
+    <title>Skopje Flood GIS</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body { margin: 0; } #map { height: 100vh; background: #222; }
+        .slider-box { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; background: white; padding: 15px; border-radius: 10px; text-align: center; width: 300px; }
+    </style>
 </head>
 <body>
-  <div id="map"></div>
-
-  <div class="msg-box" id="msg-box"></div>
-
-  <div class="panel">
-    <div class="title" id="date-label">觀測日期</div>
-    <input type="range" id="time-slider" min="0" max="2" step="1" value="0">
-  </div>
-
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/georaster"></script>
-  <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
-
-  <script>
-    // =========================================================
-    // 基本設定
-    // =========================================================
-    const APP_VERSION = "20260411";  // 部署時可改，避免 GitHub Pages 快取
-    const map = L.map("map", { zoomControl: true }).setView([42.0, 21.43], 12);
-
-    const osm = L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      { attribution: "&copy; OpenStreetMap contributors" }
-    ).addTo(map);
-
-    const timeline = [
-      { date: "2015-07-20", s2: "data/S2_20150814_COG.tif", flood: "data/Flood_20150720_COG.tif" },
-      { date: "2015-08-13", s2: "data/S2_20150814_COG.tif", flood: "data/Flood_20150813_COG.tif" },
-      { date: "2016-08-07", s2: "data/S2_20160805_COG.tif", flood: "data/Flood_20160807_COG.tif" }
-    ];
-
-    // 注意：LULC 類別碼請依妳的實際資料調整
-    const LULC_COLORS = {
-      1: "#d73027", // built-up / urban
-      2: "#fc8d59", // cropland
-      3: "#fee08b", // grassland
-      4: "#d9ef8b", // shrubland
-      5: "#91cf60", // forest
-      6: "#1a9850", // dense vegetation
-      7: "#4575b4", // water
-      8: "#8c6bb1", // wetland
-      9: "#bdbdbd"  // bare land / others
-    };
-
-    // =========================================================
-    // 圖層群組：動態 vs 靜態
-    // =========================================================
-    const s2Group = L.layerGroup().addTo(map);
-    const floodGroup = L.layerGroup().addTo(map);
-
-    const lulcGroup = L.layerGroup().addTo(map);
-    const rainGroup = L.layerGroup();  // 預設先不打開，怕畫面太雜
-
-    // =========================================================
-    // 狀態 / 快取
-    // =========================================================
-    const rasterCache = new Map();
-    let hasFittedBounds = false;
-    let latestUpdateToken = 0;
-
-    // =========================================================
-    // 小工具
-    // =========================================================
-    function showMessage(msg, isError = false) {
-      const box = document.getElementById("msg-box");
-      box.style.display = "block";
-      box.style.background = isError ? "rgba(140,0,0,0.88)" : "rgba(20,20,20,0.88)";
-      box.textContent = msg;
-
-      if (!isError) {
-        setTimeout(() => {
-          box.style.display = "none";
-        }, 2500);
-      }
-    }
-
-    function clamp(v, min, max) {
-      return Math.max(min, Math.min(max, v));
-    }
-
-    function normalize(val, min, max) {
-      if (val === null || val === undefined || Number.isNaN(val)) return null;
-      if (max === min) return 0;
-      return Math.round(((val - min) / (max - min)) * 255);
-    }
-
-    function isNoData(values, georaster) {
-      if (!values || values.length === 0) return true;
-
-      const noDataValue = georaster.noDataValue;
-      const valid = values.filter(v => v !== null && v !== undefined && !Number.isNaN(v));
-
-      if (valid.length === 0) return true;
-
-      if (noDataValue !== undefined && noDataValue !== null) {
-        return valid.every(v => v === noDataValue);
-      }
-
-      return false;
-    }
-
-    function buildColorFn(type, georaster) {
-      const mins = georaster.mins || [];
-      const maxs = georaster.maxs || [];
-      const ranges = georaster.ranges || [];
-
-      if (type === "S2") {
-        return (values) => {
-          if (!values || values.length < 3) return null;
-          if (isNoData(values, georaster)) return null;
-
-          const [r0, g0, b0] = values;
-
-          // 若全為 0，也視為透明，避免黑底
-          if ((r0 === 0 || r0 == null) && (g0 === 0 || g0 == null) && (b0 === 0 || b0 == null)) {
-            return null;
-          }
-
-          const r = clamp(normalize(r0, mins[0] ?? 0, maxs[0] ?? 255), 0, 255);
-          const g = clamp(normalize(g0, mins[1] ?? 0, maxs[1] ?? 255), 0, 255);
-          const b = clamp(normalize(b0, mins[2] ?? 0, maxs[2] ?? 255), 0, 255);
-
-          return `rgb(${r},${g},${b})`;
-        };
-      }
-
-      if (type === "Flood") {
-        return (values) => {
-          const v = Array.isArray(values) ? values[0] : values;
-          if (v === null || v === undefined || v === 0 || Number.isNaN(v)) return null;
-          return "rgba(0,255,255,0.95)"; // 亮青色
-        };
-      }
-
-      if (type === "Rain") {
-        return (values) => {
-          const v = Array.isArray(values) ? values[0] : values;
-          if (v === null || v === undefined || Number.isNaN(v) || v <= 0) return null;
-
-          if (v > 150) return "#08306b";
-          if (v > 100) return "#2171b5";
-          if (v > 50)  return "#6baed6";
-          if (v > 20)  return "#9ecae1";
-          if (v > 5)   return "#c6dbef";
-          return null;
-        };
-      }
-
-      if (type === "LULC") {
-        return (values) => {
-          const v = Array.isArray(values) ? values[0] : values;
-          if (v === null || v === undefined || Number.isNaN(v) || v === 0) return null;
-
-          const code = Math.round(v);
-          return LULC_COLORS[code] || "#999999";
-        };
-      }
-
-      return () => null;
-    }
-
-    async function loadGeoraster(url) {
-      const fullUrl = `${url}?v=${APP_VERSION}`;
-
-      if (rasterCache.has(fullUrl)) {
-        return rasterCache.get(fullUrl);
-      }
-
-      const res = await fetch(fullUrl, { cache: "no-store" });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}：${url}`);
-      }
-
-      const buffer = await res.arrayBuffer();
-      const georaster = await parseGeoraster(buffer);
-
-      rasterCache.set(fullUrl, georaster);
-      return georaster;
-    }
-
-    async function makeCogLayer(url, type) {
-      const georaster = await loadGeoraster(url);
-
-      return new GeoRasterLayer({
-        georaster: georaster,
-        opacity: type === "Flood" ? 0.95 : (type === "Rain" ? 0.65 : 0.85),
-        pixelValuesToColorFn: buildColorFn(type, georaster),
-        resolution: type === "S2" ? 256 : 128,
-        debugLevel: 0
-      });
-    }
-
-    async function loadStaticLayers() {
-      showMessage("載入靜態圖層中…");
-
-      const [lulcRes, rainRes] = await Promise.allSettled([
-        makeCogLayer("data/LULC_174_COG.tif", "LULC"),
-        makeCogLayer("data/Precip_174_COG.tif", "Rain")
-      ]);
-
-      if (lulcRes.status === "fulfilled") {
-        lulcGroup.clearLayers();
-        lulcRes.value.addTo(lulcGroup);
-      } else {
-        console.error("LULC 載入失敗：", lulcRes.reason);
-      }
-
-      if (rainRes.status === "fulfilled") {
-        rainGroup.clearLayers();
-        rainRes.value.addTo(rainGroup);
-      } else {
-        console.error("Rain 載入失敗：", rainRes.reason);
-      }
-    }
-
-    async function updateTime(index) {
-      const token = ++latestUpdateToken;
-      const item = timeline[Number(index)];
-      document.getElementById("date-label").textContent = `觀測日期：${item.date}`;
-
-      showMessage(`更新時序圖層：${item.date}`);
-
-      const [s2Res, floodRes] = await Promise.allSettled([
-        makeCogLayer(item.s2, "S2"),
-        makeCogLayer(item.flood, "Flood")
-      ]);
-
-      // 避免拖拉太快造成舊請求覆蓋新請求
-      if (token !== latestUpdateToken) return;
-
-      s2Group.clearLayers();
-      floodGroup.clearLayers();
-
-      if (s2Res.status === "fulfilled") {
-        s2Res.value.addTo(s2Group);
-
-        if (!hasFittedBounds) {
-          map.fitBounds(s2Res.value.getBounds());
-          hasFittedBounds = true;
+    <div id="map"></div>
+    <div class="slider-box">
+        <b id="date-label">載入中...</b><br>
+        <input type="range" id="time-slider" min="0" max="2" step="1" value="0" style="width:100%">
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/georaster"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+    <script>
+        const map = L.map('map').setView([42.0, 21.43], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        const timeline = [
+            { d: "2015-07-20", s2: "data/S2_20150814_COG.tif", f: "data/Flood_20150720_COG.tif" },
+            { d: "2015-08-13", s2: "data/S2_20150814_COG.tif", f: "data/Flood_20150813_COG.tif" },
+            { d: "2016-08-07", s2: "data/S2_20160805_COG.tif", f: "data/Flood_20160807_COG.tif" }
+        ];
+        let dynamicGroup = L.layerGroup().addTo(map);
+        async function load(url, type) {
+            const georaster = await parseGeoraster(await (await fetch(url)).arrayBuffer());
+            return new GeoRasterLayer({
+                georaster, opacity: type === 'f' ? 0.8 : 0.6,
+                pixelValuesToColorFn: v => {
+                    if (type === 'f') return v > 0 ? "#00FFFF" : null;
+                    if (type === 'rain') return v > 10 ? "#2171b5" : null;
+                    const r = Array.isArray(v) ? v[0] : v;
+                    return (r === 0 || r === null) ? null : (Array.isArray(v) ? `rgb(${v[0]},${v[1]},${v[2]})` : `rgb(${v},${v},${v})`);
+                }, resolution: 128
+            });
         }
-      } else {
-        console.error("S2 載入失敗：", s2Res.reason);
-        showMessage(`S2 載入失敗：${item.s2}`, true);
-      }
-
-      if (floodRes.status === "fulfilled") {
-        floodRes.value.addTo(floodGroup);
-      } else {
-        console.error("Flood 載入失敗：", floodRes.reason);
-        showMessage(`Flood 載入失敗：${item.flood}`, true);
-      }
-    }
-
-    async function init() {
-      await loadStaticLayers();
-      await updateTime(0);
-
-      L.control.layers(
-        {
-          "OpenStreetMap": osm
-        },
-        {
-          "Sentinel-2（時序）": s2Group,
-          "Flood mask（時序）": floodGroup,
-          "LULC（靜態）": lulcGroup,
-          "Rainfall（靜態）": rainGroup
-        },
-        { collapsed: false }
-      ).addTo(map);
-
-      document.getElementById("time-slider").addEventListener("input", (e) => {
-        updateTime(e.target.value);
-      });
-    }
-
-    init().catch(err => {
-      console.error(err);
-      showMessage(`初始化失敗：${err.message}`, true);
-    });
-  </script>
+        async function update(i) {
+            const item = timeline[i]; document.getElementById("date-label").innerText = item.d;
+            dynamicGroup.clearLayers();
+            (await load(item.s2, 's2')).addTo(dynamicGroup);
+            (await load(item.f, 'f')).addTo(dynamicGroup);
+        }
+        async function init() {
+            const lulc = await load("data/LULC_174_COG.tif", 'lulc');
+            const rain = await load("data/Precip_174_COG.tif", 'rain');
+            await update(0);
+            L.control.layers(null, { "土地利用 (LULC)": lulc, "累積降雨": rain, "時序圖層": dynamicGroup }, {collapsed: false}).addTo(map);
+            document.getElementById("time-slider").oninput = (e) => update(e.target.value);
+        }
+        init();
+    </script>
 </body>
 </html>
